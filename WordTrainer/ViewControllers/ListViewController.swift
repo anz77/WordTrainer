@@ -9,8 +9,7 @@ import UIKit
 
 class ListViewController: UIViewController {
     
-    var model: Model
-    let listIndex: Int
+    var model: ListModel
     
     var editTitleModeEnabled: Bool = false {
         didSet {
@@ -23,17 +22,13 @@ class ListViewController: UIViewController {
     lazy var titleLabel: UILabel = makeTitleLabel()
     lazy var titleTextField: UITextField = makeTitleTextField()
     
-    lazy var editTitleButton = makeButton(color: UIColor.systemBackground, title: "Rename", action: #selector(rename))
-    
-    lazy var addNewWordButton = makeCustomButton(dynamicColor: UIColor.systemBlue, title: "Add new word", action: #selector(addNewWord))
-    
+    lazy var editTitleButton = UIButton.makeButton(color: UIColor.systemBackground, title: "Rename", target: self, action: #selector(rename))
+    lazy var addNewWordButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemBlue, title: "Add new word", target: self, action: #selector(addNewWord))
     lazy var tableView: UITableView = makeTableView()
-    
-    lazy var goBackButton: CustomButton = makeCustomButton(dynamicColor: UIColor.systemYellow.withAlphaComponent(0.7), title: "Go to Settings Menu", action: #selector(goBack))
+    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemYellow, title: "Go to Settings Menu", target: self, action: #selector(goBack))
         
-    init(model: Model, listIndex: Int) {
+    init(model: ListModel) {
         self.model = model
-        self.listIndex = listIndex
         super.init(nibName: nil, bundle: .main)
     }
     
@@ -43,39 +38,47 @@ class ListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.systemBackground
-        tableView.delegate = self
-        tableView.dataSource = self
-        titleTextField.delegate = self
-        titleTextField.isHidden = false
-        titleTextField.isHidden = true
+        model.fetchCards()
         setupUI()
     }
     
+    func configereCardViewController(card: Card, storageManager: StorageManagerProtocol) -> CardViewController {
+        let cardModel = CardModel(card: card, storageManager: model.storageManager)
+        cardModel.editCardDelegate = model
+        let controller = CardViewController(model: cardModel)
+        cardModel.view = controller
+        return controller
+    }
     
+    func configereSearchViewController(list: List, cardCheckingDelegate: CardCheckingProtocol, storeCardDelegate: StoreCardDelegateProtocol, storageManager: StorageManagerProtocol) -> SearchViewController {
+        let searchModel = SearchModel(currentList: list, storageManager: storageManager)
+        searchModel.cardCheckingDelegate = cardCheckingDelegate
+        searchModel.storeCardDelegate = storeCardDelegate
+        let controller = SearchViewController(model: searchModel)
+        return controller
+    }
     
 }
 
 extension ListViewController {
     
     @objc func goBack() {
-        print(#function)
         self.dismiss(animated: true) {}
     }
     
     @objc func rename() {
-        print(#function)
         editTitleModeEnabled.toggle()
+                
         if editTitleModeEnabled {
             titleTextField.becomeFirstResponder()
         } else {
-            titleTextField.resignFirstResponder()
             titleTextField.text = ""
+            titleTextField.resignFirstResponder()
         }
     }
     
     @objc func addNewWord() {
-        let controller = SearchViewController(model: model)
+        let controller = configereSearchViewController(list: model.currentList, cardCheckingDelegate: model, storeCardDelegate: model, storageManager: model.storageManager)
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true, completion: nil)
     }
@@ -86,48 +89,21 @@ extension ListViewController {
     
     private func makeTitleLabel() -> UILabel {
         let label = UILabel()
-        label.text = model.wordListsArray[listIndex].name
+        label.text = model.currentList.name
         label.font = UIFont.systemFont(ofSize: 30)
-        //label.textAlignment = .center
         label.textColor = UIColor.systemGray
-        //label.backgroundColor = .red
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }
     
     func makeTitleTextField() -> UITextField {
         let textField = UITextField()
-        textField.placeholder = model.wordListsArray[listIndex].name
+        textField.placeholder = model.currentList.name
         textField.font = UIFont.systemFont(ofSize: 30)
-        
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }
-    
-    private func makeButton(color: UIColor, title: String, action: Selector) -> UIButton {
-        let button = UIButton()
-        button.backgroundColor = color
-        button.setTitle(title, for: UIControl.State.normal)
-        button.setTitleColor(UIColor.systemBlue, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: action, for: .touchUpInside)
-        button.layer.cornerRadius = 20
-        return button
-    }
-    
-    func makeCustomButton(dynamicColor: UIColor, title: String, action: Selector) -> CustomButton {
-        let dynamicColor = dynamicColor
-        let button = CustomButton(dynamicColor: dynamicColor)
-        button.backgroundColor = dynamicColor
-        button.setTitle(title, for: UIControl.State.normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: action, for: .touchUpInside)
-        button.layer.cornerRadius = 20
-        return button
-    }
-    
+
     private func makeTableView() -> UITableView {
         let tableView = UITableView(frame: CGRect.zero, style: UITableView.Style.insetGrouped)
         tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 100, right: 0)
@@ -137,16 +113,21 @@ extension ListViewController {
     }
     
     private func setupUI() {
+        
+        view.backgroundColor = UIColor.systemBackground
+        tableView.delegate = self
+        tableView.dataSource = self
+        titleTextField.delegate = self
+        titleTextField.isHidden = false
+        titleTextField.isHidden = true
       
         view.addSubview(titleLabel)
-        //titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: view.bounds.width * 0.1).isActive = true
         titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
         titleLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5).isActive = true
         
         view.addSubview(titleTextField)
-        //titleTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: view.bounds.width * 0.1).isActive = true
         titleTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
         titleTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -188,6 +169,10 @@ extension ListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        let controller = configereCardViewController(card: model.cards[indexPath.row], storageManager: model.storageManager)
+        controller.modalPresentationStyle = .fullScreen
+        present(controller, animated: true) {}
     }
     
 }
@@ -195,30 +180,37 @@ extension ListViewController: UITableViewDelegate {
 extension ListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model.wordListsArray[listIndex].wordCards.count
+        return model.cards.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! ListTableViewCell
-        //cell.contentView.backgroundColor = UIColor.secondarySystemFill
         cell.contentView.layer.cornerRadius = 10
-        cell.keyLabel.text = model.wordListsArray[listIndex].wordCards[indexPath.row].key
-        cell.valueLabel.text = model.wordListsArray[listIndex].wordCards[indexPath.row].word?.values.first
+        let card = model.cards[indexPath.row]
+        cell.keyLabel.text = card.word
+        cell.valueLabel.text = card.values[card.defaultIndex]
         return cell
     }
 }
 
 
 extension ListViewController: UITextFieldDelegate {
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let text = textField.text else {return true}
-        model.wordListsArray[listIndex].name = text
-        titleLabel.text = model.wordListsArray[listIndex].name
-        
+        model.saveListName(text)
+        //model.currentList.name = text
+        titleLabel.text = model.currentList.name
         textField.resignFirstResponder()
         titleTextField.text = ""
-        textField.placeholder = model.wordListsArray[listIndex].name
+        textField.placeholder = model.currentList.name
         editTitleModeEnabled = false
         return true
+    }
+}
+
+extension ListViewController: ListViewProtocol {
+    func needsReload() {
+        tableView.reloadData()
     }
 }

@@ -9,46 +9,31 @@ import Foundation
 import Speech
 
 
-class Recognizer: NSObject {
+class SpeechRecognitionManager: NSObject {
     
-    weak var delegate: SpeechRecognizerDelegate?
+    weak var delegate: SpeechRecognitionManagerDelegate?
     
-    var speechRecognizer: SFSpeechRecognizer?
+    var speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))!
+    
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
     
-    func set() {
-        speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-    }
-    
     func configure() {
-        
-        // Configure the SFSpeechRecognizer object already stored in a local member variable.
-        speechRecognizer?.delegate = self
-        
-        // Make the authorization request
+        speechRecognizer.delegate = self
+
         SFSpeechRecognizer.requestAuthorization { authStatus in
-            // The authorization status results in changes to the app’s interface, so process the results on the app’s main queue.
             OperationQueue.main.addOperation {
                 switch authStatus {
                 case .authorized:
-                    self.delegate?.recordButton.isEnabled = true
-                    
+                    self.delegate?.state = .authorized
                 case .denied:
-                    self.delegate?.recordButton.isEnabled = false
-                    self.delegate?.recordButton.setTitle("User denied access to speech recognition", for: .disabled)
-                    
+                    self.delegate?.state = .authDenied
                 case .restricted:
-                    self.delegate?.recordButton.isEnabled = false
-                    self.delegate?.recordButton.setTitle("Speech recognition restricted on this device", for: .disabled)
-                    
+                    self.delegate?.state = .authRestricted
                 case .notDetermined:
-                    self.delegate?.recordButton.isEnabled = false
-                    self.delegate?.recordButton.setTitle("Speech recognition not yet authorized", for: .disabled)
-                    
-                @unknown default:
-                    fatalError()
+                    self.delegate?.state = .authNotDetermined
+                @unknown default: fatalError()
                 }
             }
         }
@@ -56,68 +41,66 @@ class Recognizer: NSObject {
     
     
     func start() {
+        print("speechRecognizer.isAvailable = \(speechRecognizer.isAvailable)")
+
         if audioEngine.isRunning {
             audioEngine.stop()
             recognitionRequest?.endAudio()
-            self.delegate?.recordButton.isEnabled = false
-            self.delegate?.recordButton.setTitle("Stopping", for: .disabled)
+            self.delegate?.state = .recordingIsStopping
         } else {
             do {
                 try startRecording()
-                self.delegate?.recordButton.setTitle("Stop Recording", for: [])
+                self.delegate?.state = .recordingStarted
             } catch {
-                self.delegate?.recordButton.setTitle("Recording Not Available", for: [])
+                self.delegate?.state = .recordingNotAvailable
+                print(error)
             }
         }
     }
     
     private func startRecording() throws {
-        
-        // Cancel the previous task if it's running.
+
         recognitionTask?.cancel()
         self.recognitionTask = nil
         
-        // Configure the audio session for the app.
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         let inputNode = audioEngine.inputNode
 
-        // Create and configure the speech recognition request.
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        guard let recognitionRequest = recognitionRequest else { fatalError("Unable to create a SFSpeechAudioBufferRecognitionRequest object") }
+        guard let recognitionRequest = recognitionRequest else {
+            fatalError("Unable to create a SFSpeechAudioBufferRecognitionRequest object")
+        }
         recognitionRequest.shouldReportPartialResults = true
         
-        // Keep speech recognition data on device
         if #available(iOS 13, *) {
-            recognitionRequest.requiresOnDeviceRecognition = false
+            //recognitionRequest.requiresOnDeviceRecognition = true
+            if speechRecognizer.supportsOnDeviceRecognition {
+                recognitionRequest.requiresOnDeviceRecognition = true
+            }
         }
         
-        // Create a recognition task for the speech recognition session. Keep a reference to the task so that it can be canceled.
-        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
+        recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { result, error in
             var isFinal = false
-            
+
             if let result = result {
-                // Update the text view with the results.
-                self.delegate?.textView.text = result.bestTranscription.formattedString
+                self.delegate?.text = result.bestTranscription.formattedString
                 isFinal = result.isFinal
-                print("Text \(result.bestTranscription.formattedString)")
+                debugPrint("Text \(result.bestTranscription.formattedString)")
             }
             
             if error != nil || isFinal {
-                // Stop recognizing speech if there is a problem.
+                print(error ?? "no error")
                 self.audioEngine.stop()
                 inputNode.removeTap(onBus: 0)
-
                 self.recognitionRequest = nil
                 self.recognitionTask = nil
-
-                self.delegate?.recordButton.isEnabled = true
-                self.delegate?.recordButton.setTitle("Start Recording", for: [])
+                self.delegate?.state = .recognitionAvailable
             }
+            
         }
 
-        // Configure the microphone input.
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
             self.recognitionRequest?.append(buffer)
@@ -126,21 +109,41 @@ class Recognizer: NSObject {
         audioEngine.prepare()
         try audioEngine.start()
         
-        // Let the user know to start talking.
-        self.delegate?.textView.text = "(Go ahead, I'm listening)"
+        self.delegate?.text = "(Go ahead, I'm listening)"
     }
     
 }
 
 
-extension Recognizer: SFSpeechRecognizerDelegate {
+extension SpeechRecognitionManager: SFSpeechRecognizerDelegate {
     public func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
         if available {
-            delegate?.recordButton.isEnabled = true
-            delegate?.recordButton.setTitle("Start Recording", for: [])
+            debugPrint("delegate recognition available = \(speechRecognizer.isAvailable)")
+            //print("delegate onDevice available = \(speechRecognizer.supportsOnDeviceRecognition)")
+            self.delegate?.state = .recognitionAvailable
         } else {
-            delegate?.recordButton.isEnabled = false
-            delegate?.recordButton.setTitle("Recognition Not Available", for: .disabled)
+            debugPrint("delegate recognition available = \(speechRecognizer.isAvailable)")
+            //print("delegate onDevice available = \(speechRecognizer.supportsOnDeviceRecognition)")
+            self.delegate?.state = .recognitionNotAvailable
         }
     }
+}
+
+
+enum SpeachRecognitionState {
+    
+    case notDetermined
+    
+    case authorized
+    case authDenied
+    case authRestricted
+    case authNotDetermined
+    
+    case recordingIsStopping
+    case recordingStarted
+    case recordingNotAvailable
+    
+    case recognitionAvailable
+    case recognitionNotAvailable
+    
 }

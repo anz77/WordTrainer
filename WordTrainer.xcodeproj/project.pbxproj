@@ -10,21 +10,33 @@
 		B202C5B72549E8FF00F26EE0 /* new_dict.txt in Resources */ = {isa = PBXBuildFile; fileRef = B202C5B62549E8FF00F26EE0 /* new_dict.txt */; };
 		B202C5CB2549F89900F26EE0 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B202C5CA2549F89900F26EE0 /* SpeechRecognizer.swift */; };
 		B2039F422542C71F002C092B /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2039F412542C71F002C092B /* Word.swift */; };
-		B2039F4D2542C89B002C092B /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2039F4C2542C89B002C092B /* StorageManager.swift */; };
 		B2039F582542DF80002C092B /* XMLDictParcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2039F572542DF80002C092B /* XMLDictParcer.swift */; };
 		B2128C8425473281004195D0 /* SpeechViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2128C8325473281004195D0 /* SpeechViewController.swift */; };
+		B22770CF2566650700EAFABC /* UIButton + MakeButtonExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22770CE2566650700EAFABC /* UIButton + MakeButtonExtension.swift */; };
 		B22CFA23254BF947004C9171 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22CFA22254BF947004C9171 /* CoreDataStack.swift */; };
+		B22CFA32254C05A6004C9171 /* WordTrainer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B22CFA30254C05A6004C9171 /* WordTrainer.xcdatamodeld */; };
 		B22F3CA4254B222700A3703D /* XMLDictManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22F3CA3254B222700A3703D /* XMLDictManager.swift */; };
 		B22F3CA9254B369F00A3703D /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22F3CA8254B369F00A3703D /* CoreDataManager.swift */; };
 		B22F7B07254611DB005BF1D0 /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22F7B06254611DB005BF1D0 /* CardViewController.swift */; };
-		B2340203254AC7E6007417B7 /* ArrayOfStringValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2340202254AC7E6007417B7 /* ArrayOfStringValueTransformer.swift */; };
 		B234020B254AE442007417B7 /* RawDictWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B234020A254AE442007417B7 /* RawDictWord.swift */; };
-		B2340210254AE460007417B7 /* WordCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B234020F254AE460007417B7 /* WordCard.swift */; };
-		B2340215254AE488007417B7 /* WordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2340214254AE488007417B7 /* WordList.swift */; };
-		B2340250254B06BF007417B7 /* WordTrainer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B234024E254B06BF007417B7 /* WordTrainer.xcdatamodeld */; };
-		B2340269254B080B007417B7 /* StoredWord+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2340267254B080B007417B7 /* StoredWord+CoreDataClass.swift */; };
-		B234026A254B080B007417B7 /* StoredWord+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2340268254B080B007417B7 /* StoredWord+CoreDataProperties.swift */; };
+		B2340210254AE460007417B7 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = B234020F254AE460007417B7 /* Card.swift */; };
+		B2340215254AE488007417B7 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2340214254AE488007417B7 /* List.swift */; };
+		B2397D7325738254007A20EE /* ManagedWord+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2397D6D25738254007A20EE /* ManagedWord+CoreDataClass.swift */; };
+		B2397D7425738254007A20EE /* ManagedWord+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2397D6E25738254007A20EE /* ManagedWord+CoreDataProperties.swift */; };
+		B2397D7525738254007A20EE /* ManagedCard+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2397D6F25738254007A20EE /* ManagedCard+CoreDataClass.swift */; };
+		B2397D7625738254007A20EE /* ManagedCard+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2397D7025738254007A20EE /* ManagedCard+CoreDataProperties.swift */; };
+		B2397D7725738254007A20EE /* ManagedList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2397D7125738254007A20EE /* ManagedList+CoreDataClass.swift */; };
+		B2397D7825738254007A20EE /* ManagedList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2397D7225738254007A20EE /* ManagedList+CoreDataProperties.swift */; };
 		B249D6CB2546E7F000EF3424 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B249D6CA2546E7F000EF3424 /* SearchViewController.swift */; };
+		B251B78525509C0600DA0548 /* StringToDataTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B251B78425509C0600DA0548 /* StringToDataTransformer.swift */; };
+		B26BAE7B255AAA1800F4895D /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26BAE7A255AAA1800F4895D /* Model.swift */; };
+		B27B627B2575102100798757 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27B627A2575102100798757 /* SettingsModel.swift */; };
+		B27B62802575129E00798757 /* ListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27B627F2575129E00798757 /* ListModel.swift */; };
+		B27B62852575139D00798757 /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27B62842575139D00798757 /* SearchModel.swift */; };
+		B27B628A25751CE200798757 /* CardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27B628925751CE200798757 /* CardModel.swift */; };
+		B27B628F25753B0A00798757 /* NewCardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27B628E25753B0A00798757 /* NewCardModel.swift */; };
+		B27B6294257540CD00798757 /* NewCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27B6293257540CD00798757 /* NewCardViewController.swift */; };
+		B28881302559889C00B2F558 /* CardTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B288812F2559889C00B2F558 /* CardTableViewCell.swift */; };
 		B2BACFF02542C58700AF003F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2BACFEF2542C58700AF003F /* AppDelegate.swift */; };
 		B2BACFF22542C58700AF003F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2BACFF12542C58700AF003F /* SceneDelegate.swift */; };
 		B2BACFF42542C58700AF003F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2BACFF32542C58700AF003F /* ViewController.swift */; };
@@ -39,7 +51,6 @@
 		B2EEC6B52545C90200587077 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2EEC6B42545C90200587077 /* ListViewController.swift */; };
 		B2EEC6BD2545E3AB00587077 /* ListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2EEC6BC2545E3AB00587077 /* ListTableViewCell.swift */; };
 		B2F35A0E254461D0000364E3 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F35A0D254461D0000364E3 /* CustomButton.swift */; };
-		B2F35A1325446D13000364E3 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F35A1225446D13000364E3 /* Model.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,21 +74,33 @@
 		B202C5B62549E8FF00F26EE0 /* new_dict.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = new_dict.txt; sourceTree = "<group>"; };
 		B202C5CA2549F89900F26EE0 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		B2039F412542C71F002C092B /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
-		B2039F4C2542C89B002C092B /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		B2039F572542DF80002C092B /* XMLDictParcer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLDictParcer.swift; sourceTree = "<group>"; };
 		B2128C8325473281004195D0 /* SpeechViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechViewController.swift; sourceTree = "<group>"; };
+		B22770CE2566650700EAFABC /* UIButton + MakeButtonExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + MakeButtonExtension.swift"; sourceTree = "<group>"; };
 		B22CFA22254BF947004C9171 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		B22CFA31254C05A6004C9171 /* WordTrainer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WordTrainer.xcdatamodel; sourceTree = "<group>"; };
 		B22F3CA3254B222700A3703D /* XMLDictManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLDictManager.swift; sourceTree = "<group>"; };
 		B22F3CA8254B369F00A3703D /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		B22F7B06254611DB005BF1D0 /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
-		B2340202254AC7E6007417B7 /* ArrayOfStringValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayOfStringValueTransformer.swift; sourceTree = "<group>"; };
 		B234020A254AE442007417B7 /* RawDictWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawDictWord.swift; sourceTree = "<group>"; };
-		B234020F254AE460007417B7 /* WordCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCard.swift; sourceTree = "<group>"; };
-		B2340214254AE488007417B7 /* WordList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordList.swift; sourceTree = "<group>"; };
-		B234024F254B06BF007417B7 /* WordTrainer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WordTrainer.xcdatamodel; sourceTree = "<group>"; };
-		B2340267254B080B007417B7 /* StoredWord+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoredWord+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		B2340268254B080B007417B7 /* StoredWord+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoredWord+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		B234020F254AE460007417B7 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		B2340214254AE488007417B7 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
+		B2397D6D25738254007A20EE /* ManagedWord+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedWord+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		B2397D6E25738254007A20EE /* ManagedWord+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedWord+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		B2397D6F25738254007A20EE /* ManagedCard+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedCard+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		B2397D7025738254007A20EE /* ManagedCard+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedCard+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		B2397D7125738254007A20EE /* ManagedList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedList+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		B2397D7225738254007A20EE /* ManagedList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedList+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		B249D6CA2546E7F000EF3424 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		B251B78425509C0600DA0548 /* StringToDataTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringToDataTransformer.swift; sourceTree = "<group>"; };
+		B26BAE7A255AAA1800F4895D /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		B27B627A2575102100798757 /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModel.swift; sourceTree = "<group>"; };
+		B27B627F2575129E00798757 /* ListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListModel.swift; sourceTree = "<group>"; };
+		B27B62842575139D00798757 /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
+		B27B628925751CE200798757 /* CardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardModel.swift; sourceTree = "<group>"; };
+		B27B628E25753B0A00798757 /* NewCardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCardModel.swift; sourceTree = "<group>"; };
+		B27B6293257540CD00798757 /* NewCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCardViewController.swift; sourceTree = "<group>"; };
+		B288812F2559889C00B2F558 /* CardTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardTableViewCell.swift; sourceTree = "<group>"; };
 		B2BACFEC2542C58700AF003F /* WordTrainer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WordTrainer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2BACFEF2542C58700AF003F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B2BACFF12542C58700AF003F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -98,7 +121,6 @@
 		B2EEC6B42545C90200587077 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		B2EEC6BC2545E3AB00587077 /* ListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTableViewCell.swift; sourceTree = "<group>"; };
 		B2F35A0D254461D0000364E3 /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
-		B2F35A1225446D13000364E3 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,9 +151,13 @@
 		B202C5C32549F32000F26EE0 /* CoreDataClasses */ = {
 			isa = PBXGroup;
 			children = (
-				B2340267254B080B007417B7 /* StoredWord+CoreDataClass.swift */,
-				B2340268254B080B007417B7 /* StoredWord+CoreDataProperties.swift */,
-				B2340202254AC7E6007417B7 /* ArrayOfStringValueTransformer.swift */,
+				B2397D6D25738254007A20EE /* ManagedWord+CoreDataClass.swift */,
+				B2397D6E25738254007A20EE /* ManagedWord+CoreDataProperties.swift */,
+				B2397D6F25738254007A20EE /* ManagedCard+CoreDataClass.swift */,
+				B2397D7025738254007A20EE /* ManagedCard+CoreDataProperties.swift */,
+				B2397D7125738254007A20EE /* ManagedList+CoreDataClass.swift */,
+				B2397D7225738254007A20EE /* ManagedList+CoreDataProperties.swift */,
+				B251B78425509C0600DA0548 /* StringToDataTransformer.swift */,
 			);
 			path = CoreDataClasses;
 			sourceTree = "<group>";
@@ -142,6 +168,19 @@
 				B202C5B62549E8FF00F26EE0 /* new_dict.txt */,
 			);
 			path = Dicts;
+			sourceTree = "<group>";
+		};
+		B27B627625750FE100798757 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B26BAE7A255AAA1800F4895D /* Model.swift */,
+				B27B627A2575102100798757 /* SettingsModel.swift */,
+				B27B627F2575129E00798757 /* ListModel.swift */,
+				B27B62842575139D00798757 /* SearchModel.swift */,
+				B27B628925751CE200798757 /* CardModel.swift */,
+				B27B628E25753B0A00798757 /* NewCardModel.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		B2BACFE32542C58700AF003F = {
@@ -169,6 +208,7 @@
 			children = (
 				B2BACFEF2542C58700AF003F /* AppDelegate.swift */,
 				B2BACFF12542C58700AF003F /* SceneDelegate.swift */,
+				B27B627625750FE100798757 /* Models */,
 				B202C5C32549F32000F26EE0 /* CoreDataClasses */,
 				B2039F402542C637002C092B /* Dicts */,
 				B2F35A1725447583000364E3 /* ViewControllers */,
@@ -179,7 +219,7 @@
 				B2BACFFD2542C58800AF003F /* LaunchScreen.storyboard */,
 				B2BACFF52542C58700AF003F /* Main.storyboard */,
 				B2BAD0002542C58800AF003F /* Info.plist */,
-				B234024E254B06BF007417B7 /* WordTrainer.xcdatamodeld */,
+				B22CFA30254C05A6004C9171 /* WordTrainer.xcdatamodeld */,
 			);
 			path = WordTrainer;
 			sourceTree = "<group>";
@@ -208,8 +248,9 @@
 				B2D6AF86254435700079D8C9 /* StartViewController.swift */,
 				B2D6AF9125444EC00079D8C9 /* SettingsViewController.swift */,
 				B2EEC6B42545C90200587077 /* ListViewController.swift */,
-				B22F7B06254611DB005BF1D0 /* CardViewController.swift */,
 				B249D6CA2546E7F000EF3424 /* SearchViewController.swift */,
+				B22F7B06254611DB005BF1D0 /* CardViewController.swift */,
+				B27B6293257540CD00798757 /* NewCardViewController.swift */,
 				B2BACFF32542C58700AF003F /* ViewController.swift */,
 				B2128C8325473281004195D0 /* SpeechViewController.swift */,
 			);
@@ -220,10 +261,9 @@
 			isa = PBXGroup;
 			children = (
 				B2039F412542C71F002C092B /* Word.swift */,
+				B234020F254AE460007417B7 /* Card.swift */,
+				B2340214254AE488007417B7 /* List.swift */,
 				B234020A254AE442007417B7 /* RawDictWord.swift */,
-				B2340214254AE488007417B7 /* WordList.swift */,
-				B234020F254AE460007417B7 /* WordCard.swift */,
-				B2F35A1225446D13000364E3 /* Model.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -232,8 +272,10 @@
 			isa = PBXGroup;
 			children = (
 				B2F35A0D254461D0000364E3 /* CustomButton.swift */,
+				B22770CE2566650700EAFABC /* UIButton + MakeButtonExtension.swift */,
 				B2EC75D62545605C0049F631 /* SettingsCollectionViewCell.swift */,
 				B2EEC6BC2545E3AB00587077 /* ListTableViewCell.swift */,
+				B288812F2559889C00B2F558 /* CardTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -241,7 +283,6 @@
 		B2F35A26254475CF000364E3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				B2039F4C2542C89B002C092B /* StorageManager.swift */,
 				B22F3CA8254B369F00A3703D /* CoreDataManager.swift */,
 				B22CFA22254BF947004C9171 /* CoreDataStack.swift */,
 				B22F3CA3254B222700A3703D /* XMLDictManager.swift */,
@@ -386,33 +427,44 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2340203254AC7E6007417B7 /* ArrayOfStringValueTransformer.swift in Sources */,
-				B2039F4D2542C89B002C092B /* StorageManager.swift in Sources */,
 				B234020B254AE442007417B7 /* RawDictWord.swift in Sources */,
 				B22CFA23254BF947004C9171 /* CoreDataStack.swift in Sources */,
 				B2BACFF42542C58700AF003F /* ViewController.swift in Sources */,
 				B249D6CB2546E7F000EF3424 /* SearchViewController.swift in Sources */,
 				B2128C8425473281004195D0 /* SpeechViewController.swift in Sources */,
+				B27B628A25751CE200798757 /* CardModel.swift in Sources */,
 				B202C5CB2549F89900F26EE0 /* SpeechRecognizer.swift in Sources */,
-				B2F35A1325446D13000364E3 /* Model.swift in Sources */,
+				B27B6294257540CD00798757 /* NewCardViewController.swift in Sources */,
 				B22F3CA4254B222700A3703D /* XMLDictManager.swift in Sources */,
+				B2397D7425738254007A20EE /* ManagedWord+CoreDataProperties.swift in Sources */,
 				B2D6AF9225444EC00079D8C9 /* SettingsViewController.swift in Sources */,
 				B2EC75D72545605C0049F631 /* SettingsCollectionViewCell.swift in Sources */,
+				B2397D7725738254007A20EE /* ManagedList+CoreDataClass.swift in Sources */,
+				B2397D7525738254007A20EE /* ManagedCard+CoreDataClass.swift in Sources */,
 				B2EEC6B52545C90200587077 /* ListViewController.swift in Sources */,
+				B22770CF2566650700EAFABC /* UIButton + MakeButtonExtension.swift in Sources */,
+				B2397D7325738254007A20EE /* ManagedWord+CoreDataClass.swift in Sources */,
 				B2039F422542C71F002C092B /* Word.swift in Sources */,
 				B2D6AF87254435700079D8C9 /* StartViewController.swift in Sources */,
-				B2340269254B080B007417B7 /* StoredWord+CoreDataClass.swift in Sources */,
 				B2F35A0E254461D0000364E3 /* CustomButton.swift in Sources */,
+				B27B62852575139D00798757 /* SearchModel.swift in Sources */,
+				B251B78525509C0600DA0548 /* StringToDataTransformer.swift in Sources */,
+				B2397D7825738254007A20EE /* ManagedList+CoreDataProperties.swift in Sources */,
 				B22F3CA9254B369F00A3703D /* CoreDataManager.swift in Sources */,
+				B27B628F25753B0A00798757 /* NewCardModel.swift in Sources */,
 				B2039F582542DF80002C092B /* XMLDictParcer.swift in Sources */,
-				B2340250254B06BF007417B7 /* WordTrainer.xcdatamodeld in Sources */,
-				B2340215254AE488007417B7 /* WordList.swift in Sources */,
+				B22CFA32254C05A6004C9171 /* WordTrainer.xcdatamodeld in Sources */,
+				B26BAE7B255AAA1800F4895D /* Model.swift in Sources */,
+				B27B627B2575102100798757 /* SettingsModel.swift in Sources */,
+				B2340215254AE488007417B7 /* List.swift in Sources */,
+				B2397D7625738254007A20EE /* ManagedCard+CoreDataProperties.swift in Sources */,
+				B27B62802575129E00798757 /* ListModel.swift in Sources */,
 				B22F7B07254611DB005BF1D0 /* CardViewController.swift in Sources */,
-				B2340210254AE460007417B7 /* WordCard.swift in Sources */,
+				B2340210254AE460007417B7 /* Card.swift in Sources */,
 				B2BACFF02542C58700AF003F /* AppDelegate.swift in Sources */,
 				B2BACFF22542C58700AF003F /* SceneDelegate.swift in Sources */,
-				B234026A254B080B007417B7 /* StoredWord+CoreDataProperties.swift in Sources */,
 				B2EEC6BD2545E3AB00587077 /* ListTableViewCell.swift in Sources */,
+				B28881302559889C00B2F558 /* CardTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,7 +570,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -573,7 +625,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -747,13 +799,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		B234024E254B06BF007417B7 /* WordTrainer.xcdatamodeld */ = {
+		B22CFA30254C05A6004C9171 /* WordTrainer.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				B234024F254B06BF007417B7 /* WordTrainer.xcdatamodel */,
+				B22CFA31254C05A6004C9171 /* WordTrainer.xcdatamodel */,
 			);
-			currentVersion = B234024F254B06BF007417B7 /* WordTrainer.xcdatamodel */;
-			path = WordTrainer.xcdatamodeld;
+			currentVersion = B22CFA31254C05A6004C9171 /* WordTrainer.xcdatamodel */;
+			name = WordTrainer.xcdatamodeld;
+			path = Helpers/WordTrainer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

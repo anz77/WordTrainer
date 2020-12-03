@@ -44,3 +44,17 @@ class CustomButton: UIButton {
     */
 
 }
+
+extension CustomButton {
+    static func makeCustomButton(dynamicColor: UIColor, title: String, target: Any, action: Selector) -> CustomButton {
+        //let dynamicColor = dynamicColor
+        let button = CustomButton(dynamicColor: dynamicColor)
+        button.backgroundColor = dynamicColor
+        button.setTitle(title, for: UIControl.State.normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(target, action: action, for: .touchUpInside)
+        button.layer.cornerRadius = 20
+        return button
+    }
+}

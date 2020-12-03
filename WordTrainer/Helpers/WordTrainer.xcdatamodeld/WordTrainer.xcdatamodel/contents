@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17511" systemVersion="19H15" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ManagedCard" representedClassName="ManagedCard" syncable="YES">
+        <attribute name="defaultIndex" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="failureCount" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="listId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="successCount" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="values" attributeType="String"/>
+        <attribute name="word" attributeType="String"/>
+        <attribute name="wordId" attributeType="UUID" usesScalarValueType="NO"/>
+    </entity>
+    <entity name="ManagedList" representedClassName="ManagedList" syncable="YES">
+        <attribute name="isDefault" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="listId" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+    </entity>
+    <entity name="ManagedWord" representedClassName="ManagedWord" syncable="YES">
+        <attribute name="key" attributeType="String"/>
+        <attribute name="values" attributeType="String" valueTransformerName="StringToDataTransformer" customClassName=".[String]"/>
+        <attribute name="word" optional="YES" attributeType="String"/>
+        <attribute name="wordId" attributeType="UUID" usesScalarValueType="NO"/>
+    </entity>
+    <configuration name="Dynamic">
+        <memberEntity name="ManagedList"/>
+        <memberEntity name="ManagedCard"/>
+    </configuration>
+    <configuration name="Static">
+        <memberEntity name="ManagedWord"/>
+    </configuration>
+    <elements>
+        <element name="ManagedCard" positionX="-63" positionY="0" width="128" height="148"/>
+        <element name="ManagedList" positionX="167.47265625" positionY="44.9375" width="128" height="88"/>
+        <element name="ManagedWord" positionX="-246.07421875" positionY="45.19140625" width="128" height="103"/>
+    </elements>
+</model>

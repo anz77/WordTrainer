@@ -7,8 +7,13 @@
 
 import Foundation
 
-struct RawDictWord: Codable {
-    var k: String = ""
+struct RawDictWord {
+    var key: String = ""
+    //var word: String?
     //var tr: String = ""
-    var value: String = ""
+    var values: String = ""
 }
+
+extension RawDictWord: Codable {}
+
+extension RawDictWord: Hashable {}

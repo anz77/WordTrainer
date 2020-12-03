@@ -9,26 +9,21 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    var storageManager: StorageManager!
+    var model: Model!
     
-    lazy var getRawWordsButton = makeCustomButton(dynamicColor: .red, title: "Get from XML", action: #selector(search))
-    
-    lazy var saveButton = makeCustomButton(dynamicColor: .red, title: "save", action: #selector(storeToCOREDATA))
-    
-    lazy var cleanButton = makeCustomButton(dynamicColor: .red, title: "CLEAN", action: #selector(cleanCOREDATA))
-    
-    lazy var fetchButton = makeCustomButton(dynamicColor: .red, title: "fetch", action: #selector(fetch))
-    
-    lazy var goBackButton: CustomButton = makeCustomButton(dynamicColor: UIColor.systemYellow.withAlphaComponent(0.7), title: "Go to Settings Menu", action: #selector(goBack))
+    lazy var getRawWordsButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "Get from XML", target: self, action: #selector(search))
+    lazy var saveButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "save", target: self, action: #selector(storeToCOREDATA))
+    lazy var cleanButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "CLEAN", target: self, action: #selector(cleanCOREDATA))
+    lazy var fetchButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "fetch", target: self, action: #selector(fetch))
+    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemYellow, title: "Go to Settings Menu", target: self, action: #selector(goBack))
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .green
         setupUI()
     }
     
-    init(storageManager: StorageManager) {
-        self.storageManager = storageManager
+    init(model: Model) {
+        self.model = model
         super.init(nibName: nil, bundle: .main)
     }
     
@@ -41,17 +36,17 @@ class ViewController: UIViewController {
 extension ViewController {
     
     @objc func search() {
-        storageManager.getWordsFromXMLDict()
+        model.getWordsFromXMLDict()
         print(#function)
     }
     
     @objc func storeToCOREDATA() {
-        storageManager.storeWordsToPersistentStorage()
+        model.populatePersistentStorage()
         print(#function)
     }
  
     @objc func cleanCOREDATA() {
-        storageManager.fetchAndClean()
+        model.fetchAndClean()
         print(#function)
     }
     
@@ -61,33 +56,29 @@ extension ViewController {
     }
     
     @objc func saveNewDict() {
-        storageManager.makeNewXMLDictionary()
+        model.makeNewXMLDictionary()
         print(#function)
     }
     
     @objc func fetch() {
-        storageManager.fetchWord("about")
-        print(#function)
+        model.fetchWord("about") { (result) in
+            do {
+                let words = try result.get()
+                debugPrint(words)
+            } catch {
+                debugPrint("no such word")
+            }
+        }
     }
-    
     
 }
 
 extension ViewController {
     
-    func makeCustomButton(dynamicColor: UIColor, title: String, action: Selector) -> CustomButton {
-        let dynamicColor = dynamicColor
-        let button = CustomButton(dynamicColor: dynamicColor)
-        button.backgroundColor = dynamicColor
-        button.setTitle(title, for: UIControl.State.normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: action, for: .touchUpInside)
-        button.layer.cornerRadius = 20
-        return button
-    }
-    
     private func setupUI() {
+        
+        self.view.backgroundColor = .green
+        
         view.addSubview(getRawWordsButton)
         getRawWordsButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         getRawWordsButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: view.bounds.height * -0.2).isActive = true
@@ -111,9 +102,7 @@ extension ViewController {
         goBackButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         goBackButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         goBackButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        
-        
-        
+                
         view.addSubview(fetchButton)
         fetchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         fetchButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: view.bounds.height * 0.3).isActive = true

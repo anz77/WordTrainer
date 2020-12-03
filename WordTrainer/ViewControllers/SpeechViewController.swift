@@ -8,33 +8,75 @@
 import UIKit
 import Speech
 
-
-protocol SpeechRecognizerDelegate: class {
-    var recordButton: UIButton { get set }
-    var textView: UITextView { get set }
+protocol SpeechRecognitionManagerDelegate: class {
+    var state: SpeachRecognitionState { get set }
+    var text: String { get set }
+    
+    //var recordButton: UIButton { get set }
+    //var textView: UITextView { get set }
 }
 
-class SpeechViewController: UIViewController, SpeechRecognizerDelegate {
+class SpeechViewController: UIViewController, SpeechRecognitionManagerDelegate {
     
-    var recognizer: Recognizer?
+    var text: String = "" {
+        didSet {
+            self.textView.text = text
+        }
+    }
+    
+    var state: SpeachRecognitionState = .notDetermined {
+        didSet {
+            switch state {
+            case .authorized:
+                self.recordButton.isEnabled = true
+            case .authDenied:
+                self.recordButton.isEnabled = false
+                self.recordButton.setTitle("User denied access to speech recognition", for: .disabled)
+            case .authRestricted:
+                self.recordButton.isEnabled = false
+                self.recordButton.setTitle("Speech recognition restricted on this device", for: .disabled)
+            case .authNotDetermined:
+                self.recordButton.isEnabled = false
+                self.recordButton.setTitle("Speech recognition not yet authorized", for: .disabled)
+            case .recordingIsStopping:
+                self.recordButton.isEnabled = false
+                self.recordButton.setTitle("Stopping", for: .disabled)
+            case .recordingStarted:
+                self.recordButton.setTitle("Stop Recording", for: [])
+            case .recordingNotAvailable:
+                self.recordButton.setTitle("Recording Not Available", for: [])
+            case .recognitionAvailable:
+                self.recordButton.isEnabled = true
+                self.recordButton.setTitle("Start Recording", for: [])
+            case .recognitionNotAvailable:
+                self.recordButton.isEnabled = false
+                self.recordButton.setTitle("Recognition Not Available", for: .disabled)
+            default:
+                break
+            }
+            //print(state)
+        }
+    }
+    
+    var recognitionManager: SpeechRecognitionManager?
     
     lazy var recordButton: UIButton = makeRecordButton()
     lazy var textView: UITextView = makeTextView()
     
-    lazy var goBackButton: CustomButton = makeCustomButton(dynamicColor: UIColor.systemYellow.withAlphaComponent(0.7), title: "Go to main Menu", action: #selector(goBack))
+    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemYellow, title: "Go to main Menu", target: self, action: #selector(goBack))
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.systemBackground
-        recognizer = Recognizer()
-        recognizer?.delegate = self
-        recognizer?.set()
+        recognitionManager = SpeechRecognitionManager()
+        recognitionManager?.delegate = self
         setupUI()
         recordButton.isEnabled = false
     }
     
     override public func viewDidAppear(_ animated: Bool) {
-        recognizer?.configure()
+        recognitionManager?.configure()
+
     }
     
 }
@@ -42,11 +84,10 @@ class SpeechViewController: UIViewController, SpeechRecognizerDelegate {
 extension SpeechViewController {
     
     @objc func recordButtonTapped() {
-        recognizer?.start()
+        recognitionManager?.start()
     }
         
     @objc func goBack() {
-        print(#function)
         self.dismiss(animated: true) {}
     }
 }
@@ -57,7 +98,7 @@ extension SpeechViewController {
         let button = UIButton()
         button.backgroundColor = UIColor.systemRed
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Record", for: UIControl.State.normal)
+        button.setTitle("Start Recording", for: UIControl.State.normal)
         return button
     }
     
@@ -72,18 +113,6 @@ extension SpeechViewController {
         return textView
     }
     
-    func makeCustomButton(dynamicColor: UIColor, title: String, action: Selector) -> CustomButton {
-        let dynamicColor = dynamicColor
-        let button = CustomButton(dynamicColor: dynamicColor)
-        button.backgroundColor = dynamicColor
-        button.setTitle(title, for: UIControl.State.normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 25)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: action, for: .touchUpInside)
-        button.layer.cornerRadius = 20
-        return button
-    }
-    
     func setupUI() {
         view.addSubview(textView)
         textView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.1).isActive = true
@@ -93,7 +122,7 @@ extension SpeechViewController {
         
         view.addSubview(recordButton)
         recordButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
-        recordButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3).isActive = true
+        recordButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9).isActive = true
         recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         recordButton.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         

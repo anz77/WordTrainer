@@ -55,14 +55,14 @@ class XMLDictParcer: NSObject, XMLParserDelegate {
 
         switch elementName {
         case "k":
-            currentWord?.k = currentKey
+            currentWord?.key = currentKey
             currentElement = "ar"
             //if currentElement != "tr" { currentElement = "ar" }
 //        case "tr":
 //            currentWord?.tr = currentTranscription
 //            currentElement = "ar"
         case "ar":
-            currentWord?.value = currentValue
+            currentWord?.values = currentValue
             if let currentWord = currentWord {
                 words.append(currentWord)
             }

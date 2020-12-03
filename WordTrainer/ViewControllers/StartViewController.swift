@@ -9,11 +9,11 @@ import UIKit
 
 class StartViewController: UIViewController {
     
-    var model: Model!
+    var model: Model
     
-    lazy var settingsButton: CustomButton = makeCustomButton(dynamicColor: .systemTeal, title: "Lists Settings", action: #selector(goToSettings))
-    lazy var startButton: CustomButton = makeCustomButton(dynamicColor: .systemGreen, title: "Start", action: #selector(start))
-    lazy var someButton: CustomButton = makeCustomButton(dynamicColor: .systemYellow, title: "Some Button", action: #selector(doSome))
+    lazy var settingsButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: .systemTeal, title: "Your Lists", target: self, action: #selector(goToSettings))
+    lazy var startButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: .systemGreen, title: "Start", target: self, action: #selector(start))
+    lazy var someButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: .systemYellow, title: "Some Button", target: self, action: #selector(doSome))
     
     init(model: Model) {
         self.model = model
@@ -35,24 +35,22 @@ class StartViewController: UIViewController {
 extension StartViewController {
     
     @objc func goToSettings() {
-        print(#function)
-        
+        let model = SettingsModel(storageManager: self.model.storageManager)
         let controller = SettingsViewController(model: model)
+        model.view = controller
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true, completion: nil)
     }
     
     @objc func start() {
-        print(#function)
         let controller = SpeechViewController()
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true, completion: nil)
     }
     
     @objc func doSome() {
-        print(#function)
-        let storageManager = StorageManager()
-        let controller = ViewController(storageManager: storageManager)
+        let model = Model()
+        let controller = ViewController(model: model)
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true, completion: nil)
     }
@@ -60,18 +58,6 @@ extension StartViewController {
 
 
 extension StartViewController {
-    
-    func makeCustomButton(dynamicColor: UIColor, title: String, action: Selector) -> CustomButton {
-        let dynamicColor = dynamicColor
-        let button = CustomButton(dynamicColor: dynamicColor)
-        button.backgroundColor = dynamicColor
-        button.setTitle(title, for: UIControl.State.normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 40)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: action, for: .touchUpInside)
-        button.layer.cornerRadius = 20
-        return button
-    }
     
     func setupUI() {
         

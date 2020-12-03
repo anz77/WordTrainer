@@ -11,6 +11,12 @@ class SettingsCollectionViewCell: UICollectionViewCell {
     
     var label: UILabel = UILabel()
     
+//    var preparedForRemoving: Bool = false {
+//        didSet {
+//            print(preparedForRemoving)
+//        }
+//    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()

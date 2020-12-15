@@ -1,5 +1,5 @@
 //
-//  Model.swift
+//  PreferencesModel.swift
 //  WordTrainer
 //
 //  Created by ANDRII ZUIOK on 24.10.2020.
@@ -13,24 +13,27 @@ enum StorageError: Error {
     case emptyArrayError
 }
 
-class Model {
+class PreferensesModel {
+    
+    weak var view: PreferensesViewProtocol?
     
     lazy var xmlDictManager: XMLDictManager = {
         let manager = XMLDictManager()
         return manager
     }()
     
-    lazy var storageManager: CoreDataManager = {
-        let manager = CoreDataManager()
-        return manager
-    }()
+    var storageManager: StorageManagerProtocol
+
+    init(storageManager: StorageManagerProtocol) {
+        self.storageManager = storageManager
+    }
     
     var words: [Word]? // for populating persistent storage
 }
 
 
 // MARK: - COREDATA BRIDGE
-extension Model {
+extension PreferensesModel {
 
     
     func populatePersistentStorage() {
@@ -54,7 +57,7 @@ extension Model {
 }
 
 // MARK: - XML BRIDGE
-extension Model {
+extension PreferensesModel {
     
     func getWordsFromXMLDict() {
         xmlDictManager.makeWordsFromXML({ result in

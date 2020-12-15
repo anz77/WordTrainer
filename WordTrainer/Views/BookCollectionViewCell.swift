@@ -1,5 +1,5 @@
 //
-//  SettingsCollectionViewCell.swift
+//  BookCollectionViewCell.swift
 //  WordTrainer
 //
 //  Created by ANDRII ZUIOK on 25.10.2020.
@@ -7,15 +7,9 @@
 
 import UIKit
 
-class SettingsCollectionViewCell: UICollectionViewCell {
+class BookCollectionViewCell: UICollectionViewCell {
     
     var label: UILabel = UILabel()
-    
-//    var preparedForRemoving: Bool = false {
-//        didSet {
-//            print(preparedForRemoving)
-//        }
-//    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -31,9 +25,9 @@ class SettingsCollectionViewCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 20
         
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 25)
+        label.font = UIFont.systemFont(ofSize: 35)
         label.textAlignment = .center
-        
+        //label.textColor = UIColor.systemGray
         contentView.addSubview(label)
         label.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
@@ -41,5 +35,8 @@ class SettingsCollectionViewCell: UICollectionViewCell {
         label.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
     }
     
+    func configure(with list: List) {
+        label.text = list.name
+    }
     
 }

@@ -7,9 +7,7 @@
 
 import Foundation
 
-protocol SearchViewProtocol: class {
-    func needsReload()
-}
+
 
 protocol CardCheckingProtocol: class {
     func checkCard(_ card: Card) -> Bool
@@ -18,8 +16,6 @@ protocol CardCheckingProtocol: class {
 class SearchModel {
     
     weak var view: SearchViewProtocol?
-    weak var cardCheckingDelegate: CardCheckingProtocol?
-    weak var storeCardDelegate: StoreCardDelegateProtocol?
     
     var storageManager: StorageManagerProtocol
     
@@ -45,17 +41,10 @@ class SearchModel {
         }
     }
     
-    
     func makeCardFromFetchedWordWithIndex(_ index: Int, for list: List) -> Card {
         let word = fetchedWords[index]
         let card = Card(word: word.word, wordId: word.id, listId: list.listId, values: word.values)
         return card
     }
     
-}
-
-extension SearchModel: StoreCardDelegateProtocol {
-    func storeCard(_ card: Card) {
-        storeCardDelegate?.storeCard(card)
-    }
 }

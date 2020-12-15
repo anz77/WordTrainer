@@ -121,6 +121,8 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        
+        managedContext.reset()
     }
     
     func fetchAllWordsAndCleanDatabase() throws {
@@ -146,6 +148,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func fetchWord(_ string: String, _ completion: @escaping (Result<[Word], Error>)->()) {
@@ -165,6 +168,7 @@ extension CoreDataManager: StorageManagerProtocol {
             completion(.failure(error))
             debugPrint("Could not fetch. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func deleteCardsInList(_ list: List) throws {
@@ -190,6 +194,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     
@@ -207,6 +212,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func deleteList(_ list: List) throws {
@@ -233,6 +239,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func storeNameForList(name: String, list: List) throws {
@@ -255,6 +262,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func storeIsDefaulsForList(isDefault: Bool, list: List) throws {
@@ -278,6 +286,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func storeNewCard(_ card: Card) throws {
@@ -300,6 +309,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func deleteCard(_ card: Card) throws {
@@ -323,6 +333,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func storeCardDefaultIndex(_ index: Int, card: Card) throws {
@@ -346,6 +357,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func storeCardSuccess(_ success: Int, card: Card) throws {
@@ -369,6 +381,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func storeCardFailure(_ failure: Int, card: Card) throws {
@@ -392,6 +405,7 @@ extension CoreDataManager: StorageManagerProtocol {
             throw error
             //debugPrint("Could not save. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func fetchAllLists(_ completion: @escaping (Result<[List], Error>) -> ()) {
@@ -409,6 +423,7 @@ extension CoreDataManager: StorageManagerProtocol {
             completion(.failure(error))
             debugPrint("Could not fetch. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
     func fetchCardsForList(list: List, _ completion: @escaping (Result<[Card], Error>) -> ()) {
@@ -426,6 +441,7 @@ extension CoreDataManager: StorageManagerProtocol {
             completion(.failure(error))
             debugPrint("Could not fetch. \(error), \(error.userInfo)")
         }
+        managedContext.reset()
     }
     
 }

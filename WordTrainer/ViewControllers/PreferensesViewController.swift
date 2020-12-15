@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  PreferensesViewController.swift
 //  WordTrainer
 //
 //  Created by ANDRII ZUIOK on 23.10.2020.
@@ -7,22 +7,26 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+protocol PreferensesViewProtocol: class {
+    var model: PreferensesModel {get set}
+}
+
+class PreferensesViewController: UIViewController {
     
-    var model: Model!
+    var model: PreferensesModel
     
-    lazy var getRawWordsButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "Get from XML", target: self, action: #selector(search))
-    lazy var saveButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "save", target: self, action: #selector(storeToCOREDATA))
-    lazy var cleanButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "CLEAN", target: self, action: #selector(cleanCOREDATA))
-    lazy var fetchButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "fetch", target: self, action: #selector(fetch))
-    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemYellow, title: "Go to Settings Menu", target: self, action: #selector(goBack))
+    lazy var getRawWordsButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "Get from XML", fontSize: 25, target: self, action: #selector(search))
+    lazy var saveButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "save", fontSize: 25, target: self, action: #selector(storeToCOREDATA))
+    lazy var cleanButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "CLEAN", fontSize: 25, target: self, action: #selector(cleanCOREDATA))
+    lazy var fetchButton = CustomButton.makeCustomButton(dynamicColor: .red, title: "fetch", fontSize: 25, target: self, action: #selector(fetch))
+    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemYellow, title: "Go to Settings Menu", fontSize: 25, target: self, action: #selector(goBack))
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
     }
     
-    init(model: Model) {
+    init(model: PreferensesModel) {
         self.model = model
         super.init(nibName: nil, bundle: .main)
     }
@@ -33,31 +37,26 @@ class ViewController: UIViewController {
     
 }
 
-extension ViewController {
+extension PreferensesViewController {
     
     @objc func search() {
         model.getWordsFromXMLDict()
-        print(#function)
     }
     
     @objc func storeToCOREDATA() {
         model.populatePersistentStorage()
-        print(#function)
     }
  
     @objc func cleanCOREDATA() {
         model.fetchAndClean()
-        print(#function)
     }
     
     @objc func goBack() {
         self.dismiss(animated: true) {}
-        print(#function)
     }
     
     @objc func saveNewDict() {
         model.makeNewXMLDictionary()
-        print(#function)
     }
     
     @objc func fetch() {
@@ -73,7 +72,7 @@ extension ViewController {
     
 }
 
-extension ViewController {
+extension PreferensesViewController {
     
     private func setupUI() {
         
@@ -112,3 +111,4 @@ extension ViewController {
     
 }
 
+extension PreferensesViewController: PreferensesViewProtocol {}

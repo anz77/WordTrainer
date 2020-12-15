@@ -7,19 +7,22 @@
 
 import UIKit
 
+protocol SearchViewProtocol: class {
+    var model: SearchModel {get set}
+    func needsReload()
+    //func needsDismiss()
+}
+
 class SearchViewController: UIViewController {
     
     var model: SearchModel
     
-//    var searchedResults: [Word] = [] {
-//        didSet {
-//            UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {self.tableView.reloadData()}, completion: nil)
-//        }
-//    }
+    weak var storeCardDelegate: StoreCardDelegateProtocol?
+    weak var cardCheckingDelegate: CardCheckingProtocol?
     
-    lazy var tableView: UITableView = makeTableView()
-    lazy var searchBar: UISearchBar = makeSearchBar()
-    lazy var cancelButton: UIButton = makeCancelButton()
+    lazy var tableView: UITableView = UITableView.makeTableView(style: .grouped, backgroundColor: UIColor.systemBackground)
+    lazy var searchBar: UISearchBar = UISearchBar.makeSearchBar(placeholder: "Search", style: .minimal, backgroundColor: UIColor.systemBackground)
+    lazy var cancelButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemBlue.withAlphaComponent(0.5), title: "Cancel", fontSize: 20, target: self, action: #selector(cancel))
 
     init(model: SearchModel) {
         self.model = model
@@ -32,7 +35,6 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        model.view = self
         setupUI()
         tableView.reloadData()
     }
@@ -41,15 +43,6 @@ class SearchViewController: UIViewController {
         super.viewDidAppear(animated)
         searchBar.becomeFirstResponder()
         registerForKeyboardNotifications()
-    }
-    
-    func configureNewCardViewController(card: Card, alreadyInList: Bool, storeCardDelegate: StoreCardDelegateProtocol, storageManager: StorageManagerProtocol) -> NewCardViewController {
-        let cardModel = NewCardModel(card: card, storageManager: storageManager)
-        cardModel.alreadyInList = alreadyInList
-        cardModel.storeCardDelegate = storeCardDelegate
-        let controller = NewCardViewController(model: cardModel)
-        cardModel.view = controller
-        return controller
     }
     
 }
@@ -63,33 +56,6 @@ extension SearchViewController {
 
 extension SearchViewController {
     
-    private func makeTableView() -> UITableView{
-        let tableView = UITableView(frame: CGRect.zero, style: UITableView.Style.grouped)
-        tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 0, right: 0)
-        tableView.rowHeight = 40
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        return tableView
-    }
-    
-    private func makeSearchBar() -> UISearchBar {
-        let searchBar = UISearchBar(frame: .zero)
-        searchBar.backgroundColor = UIColor.systemBackground
-        searchBar.placeholder = "Search"
-        searchBar.searchBarStyle = .minimal
-        searchBar.autocapitalizationType = .none
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
-    }
-    
-    private func  makeCancelButton() -> UIButton {
-        let button = UIButton()
-        button.setTitle("Cancel", for: UIControl.State.normal)
-        button.setTitleColor(UIColor.systemBlue, for: [])
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(cancel), for: UIControl.Event.touchUpInside)
-        return button
-    }
-    
     func setupUI() {
         
         view.backgroundColor = UIColor.systemBackground
@@ -98,23 +64,26 @@ extension SearchViewController {
         searchBar.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SearchCell")
         
-        self.view.addSubview(searchBar)
+        tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 0, right: 0)
+        tableView.rowHeight = 40
+        
+        view.addSubview(searchBar)
         NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.1),
+            searchBar.centerYAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.1),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchBar.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7),
-            searchBar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1)
+            searchBar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.08)
         ])
         
-        self.view.addSubview(cancelButton)
+        view.addSubview(cancelButton)
         NSLayoutConstraint.activate([
-            cancelButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.1),
+            cancelButton.centerYAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.1),
             cancelButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
-            cancelButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.2),
-            cancelButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1)
+            cancelButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.25),
+            cancelButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.047)
         ])
         
-        self.view.addSubview(tableView)
+        view.addSubview(tableView)
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.2),
             tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -131,7 +100,7 @@ extension SearchViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let newCard = model.makeCardFromFetchedWordWithIndex(indexPath.row, for: model.currentList)
-        let controller = configureNewCardViewController(card: newCard, alreadyInList: model.cardCheckingDelegate?.checkCard(newCard) ?? false, storeCardDelegate: model, storageManager: model.storageManager)
+        let controller = ModulesBuilder.configureNewCardViewController(card: newCard, alreadyInList: self.cardCheckingDelegate?.checkCard(newCard) ?? false, storeCardDelegate: self)
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true) {}
     }
@@ -153,22 +122,15 @@ extension SearchViewController: UITableViewDataSource {
     
 }
 
+// MARK: - UISearchBarDelegate
 extension SearchViewController: UISearchBarDelegate {
     
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-    }
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {}
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         model.searchWordInPersistentStorage(word: searchText)
     }
     
-    
-}
-
-extension SearchViewController: SearchViewProtocol {
-    func needsReload() {
-        tableView.reloadData()
-    }
 }
 
 extension SearchViewController {
@@ -188,10 +150,29 @@ extension SearchViewController {
     }
 
     @objc func keyboardWillBeHidden(aNotification: Notification) {
-        let contentInsets = UIEdgeInsets.zero
+        let contentInsets = UIEdgeInsets(top: -20, left: 0, bottom: 0, right: 0)
         tableView.contentInset = contentInsets
         tableView.scrollIndicatorInsets = contentInsets
     }
 }
 
+extension SearchViewController: SearchViewProtocol {
+    func needsReload() {
+        tableView.reloadData()
+    }
+}
 
+extension SearchViewController: StoreCardDelegateProtocol {
+    func storeCard(_ card: Card) {
+        storeCardDelegate?.storeCard(card)
+    }
+    
+}
+
+
+//    var searchedResults: [Word] = [] {
+//        didSet {
+//            UIView.transition(with: tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {self.tableView.reloadData()}, completion: nil)
+//        }
+//    }
+    

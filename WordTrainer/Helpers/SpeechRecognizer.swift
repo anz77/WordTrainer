@@ -8,58 +8,88 @@
 import Foundation
 import Speech
 
-
-class SpeechRecognitionManager: NSObject {
+class SpeechRecognitionService2: NSObject {
     
-    weak var delegate: SpeechRecognitionManagerDelegate?
+    var availability: (Bool)->()
+    var listening: (Bool)->()
+    var output: (String)->()
     
+    var onDeviceRecognitionAvailable = false
+    
+    init(availability: @escaping (Bool)->(), listening: @escaping (Bool)->(), output: @escaping (String)->()) {
+        self.availability = availability
+        self.listening = listening
+        self.output = output
+    }
+        
     var speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))!
-    
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
     
+    func checkForOnDeviceRecognition() -> Bool {
+        return speechRecognizer.supportsOnDeviceRecognition
+    }
+    
+    func checkAvailability() {
+        availability(speechRecognizer.isAvailable)
+    }
+    
     func configure() {
+        print("speechRecognizer.isAvailable = \(speechRecognizer.isAvailable)")
+        //onDeviceRecognitionAvailable = checkForOnDeviceRecognition()
         speechRecognizer.delegate = self
-
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            OperationQueue.main.addOperation {
-                switch authStatus {
-                case .authorized:
-                    self.delegate?.state = .authorized
-                case .denied:
-                    self.delegate?.state = .authDenied
-                case .restricted:
-                    self.delegate?.state = .authRestricted
-                case .notDetermined:
-                    self.delegate?.state = .authNotDetermined
-                @unknown default: fatalError()
-                }
-            }
+        checkAvailability()
+    }
+    
+//    func start() {
+//        print("start")
+//        if audioEngine.isRunning {
+//            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//            audioEngine.stop()
+//            recognitionRequest?.endAudio()
+//            listening(false)
+//        } else {
+//            do {
+//                listening(true)
+//                try startRecording()
+//            } catch {
+//                listening(false)
+//                print(error)
+//            }
+//        }
+//    }
+    
+    func start() {
+        print("start")
+        do {
+            listening(true)
+            try startRecording()
+        } catch {
+            listening(false)
+            print(error)
         }
     }
     
+    func cancelRecording() {
+        self.audioEngine.stop()
+        self.recognitionRequest?.endAudio()
+        recognitionTask?.finish()
+        //recognitionTask?.cancel()
+        self.recognitionRequest = nil
+        self.recognitionTask = nil
+    }
     
-    func start() {
-        print("speechRecognizer.isAvailable = \(speechRecognizer.isAvailable)")
-
-        if audioEngine.isRunning {
-            audioEngine.stop()
-            recognitionRequest?.endAudio()
-            self.delegate?.state = .recordingIsStopping
-        } else {
-            do {
-                try startRecording()
-                self.delegate?.state = .recordingStarted
-            } catch {
-                self.delegate?.state = .recordingNotAvailable
-                print(error)
-            }
-        }
+    func stopRecording() {
+        self.audioEngine.stop()
+        self.recognitionRequest?.endAudio()
+        recognitionTask?.finish()
+        self.recognitionRequest = nil
+        self.recognitionTask = nil
     }
     
     private func startRecording() throws {
-
+        
         recognitionTask?.cancel()
         self.recognitionTask = nil
         
@@ -72,31 +102,25 @@ class SpeechRecognitionManager: NSObject {
         guard let recognitionRequest = recognitionRequest else {
             fatalError("Unable to create a SFSpeechAudioBufferRecognitionRequest object")
         }
-        recognitionRequest.shouldReportPartialResults = true
-        
-        if #available(iOS 13, *) {
-            //recognitionRequest.requiresOnDeviceRecognition = true
-            if speechRecognizer.supportsOnDeviceRecognition {
-                recognitionRequest.requiresOnDeviceRecognition = true
-            }
-        }
-        
+        recognitionRequest.shouldReportPartialResults = false
+
+        //enableOnDeviceRecognitionForRequest(recognitionRequest)
+            
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { result, error in
             var isFinal = false
-
             if let result = result {
-                self.delegate?.text = result.bestTranscription.formattedString
+                self.output(result.bestTranscription.formattedString)
                 isFinal = result.isFinal
-                debugPrint("Text \(result.bestTranscription.formattedString)")
+                print("result is final = \(isFinal)")
             }
-            
+                        
             if error != nil || isFinal {
-                print(error ?? "no error")
+                print("reconition error ===>>> \(String(describing: error))")
                 self.audioEngine.stop()
                 inputNode.removeTap(onBus: 0)
                 self.recognitionRequest = nil
                 self.recognitionTask = nil
-                self.delegate?.state = .recognitionAvailable
+                self.listening(false)
             }
             
         }
@@ -108,42 +132,32 @@ class SpeechRecognitionManager: NSObject {
         
         audioEngine.prepare()
         try audioEngine.start()
+        self.output("(Go ahead, I'm listening)")
+    }
+    
+    func enableOnDeviceRecognitionForRequest(_ recognitionRequest: SFSpeechAudioBufferRecognitionRequest) {
         
-        self.delegate?.text = "(Go ahead, I'm listening)"
+//        if #available(iOS 13, *) {
+//            //recognitionRequest.requiresOnDeviceRecognition = true
+//            if speechRecognizer.supportsOnDeviceRecognition {
+//                recognitionRequest.requiresOnDeviceRecognition = true
+//            }
+//        }
+                
+        recognitionRequest.requiresOnDeviceRecognition = onDeviceRecognitionAvailable
     }
     
 }
 
 
-extension SpeechRecognitionManager: SFSpeechRecognizerDelegate {
+extension SpeechRecognitionService2: SFSpeechRecognizerDelegate {
     public func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
         if available {
             debugPrint("delegate recognition available = \(speechRecognizer.isAvailable)")
-            //print("delegate onDevice available = \(speechRecognizer.supportsOnDeviceRecognition)")
-            self.delegate?.state = .recognitionAvailable
+            availability(true)
         } else {
             debugPrint("delegate recognition available = \(speechRecognizer.isAvailable)")
-            //print("delegate onDevice available = \(speechRecognizer.supportsOnDeviceRecognition)")
-            self.delegate?.state = .recognitionNotAvailable
+            availability(false)
         }
     }
-}
-
-
-enum SpeachRecognitionState {
-    
-    case notDetermined
-    
-    case authorized
-    case authDenied
-    case authRestricted
-    case authNotDetermined
-    
-    case recordingIsStopping
-    case recordingStarted
-    case recordingNotAvailable
-    
-    case recognitionAvailable
-    case recognitionNotAvailable
-    
 }

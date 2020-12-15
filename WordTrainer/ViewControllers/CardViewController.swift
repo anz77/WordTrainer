@@ -7,14 +7,19 @@
 
 import UIKit
 
+protocol CardViewProtocol: class {
+    var model: CardModel {get set}
+}
 
 class CardViewController: UIViewController {
         
     var model: CardModel
     
-    lazy var keyLabel: UILabel = makeKeyLabel()
-    lazy var tableView: UITableView = makeTableView()
-    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemTeal, title: "Cancel", target: self, action: #selector(goBack))
+    weak var editCardDelegate: EditCardProtocol?
+    
+    lazy var keyLabel: UILabel = UILabel.makeLabel(text: model.card.word, fontSize: 40, textAlignment: .center, textColor: UIColor.systemGray)
+    lazy var tableView: UITableView = UITableView.makeTableView(style: .insetGrouped, backgroundColor: UIColor.systemBackground)
+    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemTeal, title: "Cancel", fontSize: 25, target: self, action: #selector(goBack))
     
     init(model: CardModel) {
         self.model = model
@@ -30,43 +35,30 @@ class CardViewController: UIViewController {
         setupUI()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        tableView.scrollToRow(at: IndexPath(row: model.card.defaultIndex, section: 0), at: UITableView.ScrollPosition.middle, animated: true)
+    }
+    
 }
 
 extension CardViewController {
     @objc func goBack() {
-        model.editCardIfNeeded()
+        editCardDelegate?.editCardIfNeeded(card: model.card)
         self.dismiss(animated: true) {}
     }
 }
 
 extension CardViewController {
     
-    private func makeKeyLabel() -> UILabel {
-        let label = UILabel()
-        label.text = model.card.word
-        label.font = UIFont.systemFont(ofSize: 40)
-        label.textAlignment = .center
-        label.textColor = UIColor.systemGray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-    
-    private func makeTableView() -> UITableView {
-        let tableView = UITableView()
-        tableView.backgroundColor = .systemBackground
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        return tableView
-    }
-    
     private func setupUI() {
         
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor.systemBackground
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(CardTableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.register(CardTableViewCell.self, forCellReuseIdentifier: "CardCell")
         
         tableView.estimatedRowHeight = 50
-        tableView.rowHeight = UITableView.automaticDimension
         tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         
         view.addSubview(keyLabel)
@@ -106,16 +98,17 @@ extension CardViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CardTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CardCell", for: indexPath) as! CardTableViewCell
         cell.contentView.backgroundColor = (indexPath.row == model.card.defaultIndex) ?  UIColor.systemOrange : UIColor.quaternarySystemFill
         cell.textLabel?.numberOfLines = 5
         cell.textLabel?.text = model.card.values[indexPath.row]
+        cell.detailTextLabel?.text = "djfkdjfnjfjkfirrrrrrrrrrrrrrrrrnnnnnnnnnn"
         return cell
     }
     
 }
 
 extension CardViewController: CardViewProtocol {
-    
+
 }
 

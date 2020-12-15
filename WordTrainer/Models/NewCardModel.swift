@@ -7,33 +7,19 @@
 
 import Foundation
 
-protocol NewCardViewProtocol: class {
-    
-}
-
 protocol StoreCardDelegateProtocol: class {
     func storeCard(_ card: Card)
 }
 
-
 class NewCardModel {
     
     weak var view: NewCardViewProtocol?
-    weak var storeCardDelegate: StoreCardDelegateProtocol?
-    
-    var storageManager: StorageManagerProtocol
     
     var card: Card
     
     var alreadyInList: Bool = false
     
-    init(card: Card, storageManager: StorageManagerProtocol) {
+    init(card: Card) {
         self.card = card
-        self.storageManager = storageManager
     }
-    
-    func storeCard() {
-        storeCardDelegate?.storeCard(card)
-    }
-
 }

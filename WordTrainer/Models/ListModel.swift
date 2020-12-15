@@ -7,10 +7,6 @@
 
 import Foundation
 
-protocol ListViewProtocol: class {
-    func needsReload()
-}
-
 protocol SaveListNameDelegateProtocol: class {
     func saveName(_ name: String, for list: List)
 }
@@ -18,9 +14,7 @@ protocol SaveListNameDelegateProtocol: class {
 class ListModel {
     
     weak var view: ListViewProtocol?
-    
-    weak var saveListNameDelegate: SaveListNameDelegateProtocol?
-    
+        
     var storageManager: StorageManagerProtocol
     
     init(currentList: List, storageManager: StorageManagerProtocol) {
@@ -30,6 +24,19 @@ class ListModel {
     
     var currentList: List // for fetching of cards
     var cards: [Card] = []  // for controllers and speach
+    var cardsForDeleting: [Card] = []
+    
+    func isPreparedForDeleting(card: Card) -> Bool {
+        cardsForDeleting.contains(card)
+    }
+    
+    func prepareCardForDeleting(card: Card) {
+        cardsForDeleting.append(card)
+    }
+    
+    func restoreCard(card: Card) {
+        cardsForDeleting.removeAll { $0 == card }
+    }
     
     func addNewCard(card: Card) {
         cards.append(card)
@@ -40,12 +47,15 @@ class ListModel {
     }
     
     func removeCard(card: Card) {
-        cards.removeAll { cardForRemoving in
-            cardForRemoving.wordId == card.wordId
-        }
+        cards.removeAll { $0 == card }
         do {
             try storageManager.deleteCard(card)
         } catch {}
+    }
+    
+    func deleteCards() {
+        cardsForDeleting.forEach { removeCard(card: $0) }
+        view?.needsReload()
     }
     
     func fetchCards() {
@@ -60,28 +70,10 @@ class ListModel {
         }
     }
     
+    
     func saveListName(_ name: String) {
         currentList.name = name
-        saveListNameDelegate?.saveName(name, for: currentList)
     }
-    
-}
-
-extension ListModel: CardCheckingProtocol {
-    func checkCard(_ card: Card) -> Bool {
-        return cards.contains(card)
-    }
-    
-    
-}
-
-extension ListModel: StoreCardDelegateProtocol {
-    func storeCard(_ card: Card) {
-        addNewCard(card: card)
-    }
-}
-
-extension ListModel: EditCardProtocol {
     
     func editCardIfNeeded(card: Card) {
         if let index = cards.firstIndex(where: { $0.wordId == card.wordId }) {
@@ -93,6 +85,18 @@ extension ListModel: EditCardProtocol {
             }
             view?.needsReload()
         }
+    }
+    
+    func storeCard(_ card: Card) {
+        addNewCard(card: card)
+    }
+    
+    func checkCard(_ card: Card) -> Bool {
+        return cards.contains(card)
+    }
+    
+    deinit {
+        print("list model deinit")
     }
     
 }

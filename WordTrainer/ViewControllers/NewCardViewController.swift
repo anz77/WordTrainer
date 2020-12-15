@@ -5,19 +5,23 @@
 //  Created by ANDRII ZUIOK on 30.11.2020.
 //
 
-//import Foundation
 import UIKit
 
+protocol NewCardViewProtocol: class {
+    var model: NewCardModel {get set}
+}
 
 class NewCardViewController: UIViewController {
         
     var model: NewCardModel
     
-    lazy var keyLabel: UILabel = makeKeyLabel()
-    lazy var tableView: UITableView = makeTableView()
-    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemTeal, title: "Cancel", target: self, action: #selector(goBack))
-    lazy var addNewCardButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemBlue, title: "Add to list", target: self, action: #selector(storeCard))
-    lazy var alreadyInListLabel: UILabel = makeAlreadyInListLabel()
+    weak var storeCardDelegate: StoreCardDelegateProtocol?
+    
+    lazy var keyLabel: UILabel = UILabel.makeLabel(text: model.card.word, fontSize: 40, textAlignment: .center, textColor: UIColor.systemGray)
+    lazy var tableView: UITableView = UITableView.makeTableView(style: .plain, backgroundColor: UIColor.systemBackground)
+    lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemTeal, title: "Cancel", fontSize: 25, target: self, action: #selector(goBack))
+    lazy var addNewCardButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemBlue, title: "Add to list", fontSize: 25, target: self, action: #selector(storeCard))
+    lazy var alreadyInListLabel: UILabel = UILabel.makeLabel(text: "This card is already in list", fontSize: 20, textAlignment: .center, textColor: UIColor.systemRed)
     
     init(model: NewCardModel) {
         self.model = model
@@ -45,39 +49,12 @@ extension NewCardViewController {
     }
     
     @objc func storeCard() {
-        model.storeCard()
+        storeCardDelegate?.storeCard(model.card)
         self.dismiss(animated: true) {}
     }
 }
 
 extension NewCardViewController {
-    
-    private func makeKeyLabel() -> UILabel {
-        let label = UILabel()
-        label.text = model.card.word
-        label.font = UIFont.systemFont(ofSize: 40)
-        label.textAlignment = .center
-        label.textColor = UIColor.systemGray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-    
-    private func makeAlreadyInListLabel() -> UILabel {
-        let label = UILabel()
-        label.text = "This card is already in list"
-        label.font = UIFont.systemFont(ofSize: 20)
-        label.textAlignment = .center
-        label.textColor = UIColor.systemRed
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-    
-    private func makeTableView() -> UITableView {
-        let tableView = UITableView()
-        tableView.backgroundColor = .systemBackground
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        return tableView
-    }
     
     private func setupUI() {
         

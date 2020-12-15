@@ -7,11 +7,6 @@
 
 import Foundation
 
-
-protocol CardViewProtocol: class {
-    
-}
-
 protocol EditCardProtocol: class {
     func editCardIfNeeded(card: Card)
 }
@@ -19,24 +14,11 @@ protocol EditCardProtocol: class {
 class CardModel {
     
     weak var view: CardViewProtocol?
-    var storageManager: StorageManagerProtocol
-    
-    weak var editCardDelegate: EditCardProtocol?
-    
+        
     var card: Card
     
-    init(card: Card, storageManager: StorageManagerProtocol) {
+    init(card: Card) {
         self.card = card
-        self.storageManager = storageManager
     }
-    
-    func removeCard(card: Card) {
-        
-    }
-    
-    func editCardIfNeeded() {
-        editCardDelegate?.editCardIfNeeded(card: card)
-    }
-    
     
 }

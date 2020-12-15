@@ -11,7 +11,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
@@ -19,17 +18,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: scene)
+        let storageManager = CoreDataManager()
         
-        let model = Model()
-        let startController = StartViewController(model: model)
-        window?.rootViewController = startController
         
-        let storePaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
-        print(storePaths)
+        //let model = BookModel(storageManager: storageManager)
+        let controler = ModulesBuilder.configureBookViewController(storageManager: storageManager)
+        window?.rootViewController = controler
         
-//        let presenter = Presenter()
-//        let viewController = ViewController(presenter: presenter)
-//        window?.rootViewController = viewController
+//        let model = StartModel()
+//        let startController = StartViewController(model: model)
+//        window?.rootViewController = startController
+        
+//        let storePaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
+//        print(storePaths)
+        
         window?.makeKeyAndVisible()
     }
 

@@ -9,8 +9,21 @@ import UIKit
 
 class ListTableViewCell: UITableViewCell {
     
-    var keyLabel = UILabel()
-    var valueLabel = UILabel()
+    lazy var keyLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.systemFont(ofSize: 30, weight: .semibold)
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    lazy var valueLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.contentMode = .topLeft
+        label.font = UIFont.systemFont(ofSize: 25)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -23,41 +36,42 @@ class ListTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        //layoutMargins = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 2, left: 0, bottom: 2, right: 0))
+        //contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 2, left: 0, bottom: 2, right: 0))
     }
     
     func setupUI() {
-        
-        contentView.layer.cornerRadius = 10
-        contentView.backgroundColor = UIColor.secondarySystemFill
-        
-        keyLabel.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        valueLabel.numberOfLines = 0
+        contentView.layer.cornerRadius = 20
+        contentView.layer.borderWidth = 2
+        contentView.layer.borderColor = UIColor.systemBackground.cgColor
         contentView.addSubview(keyLabel)
-        keyLabel.translatesAutoresizingMaskIntoConstraints = false
-        keyLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: contentView.bounds.width * 0.05).isActive = true
-        keyLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.6).isActive = true
-        keyLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5).isActive = true
-        keyLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: contentView.bounds.height * -0.2).isActive = true
-        
         contentView.addSubview(valueLabel)
-        valueLabel.translatesAutoresizingMaskIntoConstraints = false
-        valueLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: contentView.bounds.width * 0.05).isActive = true
-        valueLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.6).isActive = true
-        valueLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5).isActive = true
-        valueLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: contentView.bounds.height * 0.2).isActive = true
+
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: keyLabel.topAnchor, constant: -10),
+            contentView.trailingAnchor.constraint(equalTo: valueLabel.trailingAnchor, constant: 15),
+            contentView.bottomAnchor.constraint(equalTo: valueLabel.bottomAnchor,constant: 10),
+            contentView.leadingAnchor.constraint(equalTo: valueLabel.leadingAnchor, constant: -15),
+
+            keyLabel.trailingAnchor.constraint(equalTo: valueLabel.trailingAnchor),
+            keyLabel.bottomAnchor.constraint(equalTo: valueLabel.topAnchor, constant: -5),
+            keyLabel.leadingAnchor.constraint(equalTo: valueLabel.leadingAnchor)
+        ])
+        
     }
     
-    
+    func configure(with card: Card) {
+        keyLabel.text = card.word
+        valueLabel.text = card.values[card.defaultIndex]
+    }
 
 }

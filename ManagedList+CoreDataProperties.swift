@@ -17,7 +17,6 @@ extension ManagedList {
     }
 
     @NSManaged public var listId: UUID
-    @NSManaged public var isDefault: Bool
     @NSManaged public var name: String
 
 }

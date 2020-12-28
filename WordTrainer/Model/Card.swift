@@ -29,6 +29,12 @@ struct Card {
 
 extension Card: Hashable {
     static func == (lhs: Card, rhs: Card) -> Bool {
-        lhs.wordId == rhs.wordId
+        lhs.wordId == rhs.wordId && lhs.listId == rhs.listId
     }
+}
+
+extension Card: Comparable {
+    static func < (lhs: Card, rhs: Card) -> Bool {
+        lhs.word < rhs.word
+    }    
 }

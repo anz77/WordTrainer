@@ -7,19 +7,33 @@
 
 import Foundation
 
+protocol NewCardModelProtocol: CardModelProtocol {
+    func setAlreadyInList(_ alreadyInList: Bool)
+    func isAlreadyInList() -> Bool
+}
+
 protocol StoreCardDelegateProtocol: class {
     func storeCard(_ card: Card)
 }
 
-class NewCardModel {
+class NewCardModel: CardModel {
     
-    weak var view: NewCardViewProtocol?
+    private var alreadyInList: Bool = false
     
-    var card: Card
-    
-    var alreadyInList: Bool = false
-    
-    init(card: Card) {
-        self.card = card
+    override init(card: Card) {
+        super.init(card: card)
     }
 }
+
+extension NewCardModel: NewCardModelProtocol {
+    
+    func isAlreadyInList() -> Bool {
+        alreadyInList
+    }
+    
+    func setAlreadyInList(_ alreadyInList: Bool) {
+        self.alreadyInList = alreadyInList
+    }
+}
+
+

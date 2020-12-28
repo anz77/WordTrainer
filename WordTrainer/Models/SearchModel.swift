@@ -7,7 +7,16 @@
 
 import Foundation
 
-
+protocol SearchModelProtocol: class {
+    var viewNeedsReload: (()->())? {get set}
+    func configureItemWithIndex(_ index: Int, completion: @escaping (Word)->())
+    
+    func fetchedWordsCount() -> Int
+    func fetchedWordWithIndex(_ index: Int) -> Word
+    func currentList() -> List
+    func searchWordInPersistentStorage(word: String)
+    func makeCardFromFetchedWordWithIndex(_ index: Int, for list: List) -> Card
+}
 
 protocol CardCheckingProtocol: class {
     func checkCard(_ card: Card) -> Bool
@@ -15,28 +24,46 @@ protocol CardCheckingProtocol: class {
 
 class SearchModel {
     
-    weak var view: SearchViewProtocol?
+    var viewNeedsReload: (()->())?
+    var storageManager: StorageManagerProtocol?
     
-    var storageManager: StorageManagerProtocol
+    private var fetchedWords: [Word] = []
+    private var list: List
     
-    init(currentList: List, storageManager: StorageManagerProtocol) {
-        self.currentList = currentList
-        self.storageManager = storageManager
+    init(list: List) {
+        self.list = list
+    }
+}
+
+
+extension SearchModel: SearchModelProtocol {
+    
+    func configureItemWithIndex(_ index: Int, completion: @escaping (Word)->()) {
+        completion(fetchedWords[index])
     }
     
-    var fetchedWords: [Word] = [] // for search and creating card
-    var currentList: List // for fetching of cards
+    func fetchedWordsCount() -> Int {
+        fetchedWords.count
+    }
     
+    func fetchedWordWithIndex(_ index: Int) -> Word {
+        fetchedWords[index]
+    }
+    
+    func currentList() -> List {
+        list
+    }
     
     func searchWordInPersistentStorage(word: String) {
-        storageManager.fetchWord(word) { (result) in
+        storageManager?.fetchWord(word) { (result) in
             do {
                 let words = try result.get()
                 self.fetchedWords = words
-                self.view?.needsReload()
+                self.viewNeedsReload?()
             } catch {
                 self.fetchedWords = []
-                self.view?.needsReload()
+                self.viewNeedsReload?()
+                debugPrint(error)
             }
         }
     }

@@ -22,15 +22,10 @@ class CustomButton: UIButton {
     
     override var isHighlighted: Bool {
             get {
-                return super.isHighlighted
+                super.isHighlighted
             }
             set {
-                if newValue {
-                    backgroundColor = dynamicColor?.withAlphaComponent(0.5)
-                }
-                else {
-                    backgroundColor = dynamicColor
-                }
+                backgroundColor = newValue ? dynamicColor?.withAlphaComponent(0.5) : dynamicColor
                 super.isHighlighted = newValue
             }
         }

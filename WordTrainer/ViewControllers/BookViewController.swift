@@ -7,33 +7,43 @@
 
 import UIKit
 
-protocol BookViewProtocol: class {
-    var model: BookModel {get set}
-    func needsReload()
+protocol SaveListNameDelegateProtocol: class {
+    func saveName(_ name: String, for list: List)
 }
 
 class BookViewController: UIViewController {
-        
-    private var editModeEnabled: Bool = false
+    
+    private var editModeEnabled: Bool = false {
+        didSet {
+            model.cleanListsForDeleting()
+            editButton.setTitle(editModeEnabled ?  "Save" : "Edit", for: .normal)
+            editButton.setImage(editModeEnabled ?  UIImage.save : UIImage.edit, for: .normal)
+            editButton.setBackgroundColor(editModeEnabled ? .systemGreen : .systemPurple)
+            addOrDeleteButton.setTitle(editModeEnabled ?  "Delete" : "Add", for: .normal)
+            addOrDeleteButton.setImage(editModeEnabled ? UIImage.trash : UIImage.plus, for: .normal)
+            addOrDeleteButton.setBackgroundColor(editModeEnabled ? .systemRed : .systemTeal)
+        }
+    }
     private var emptyModeEnabled: Bool = true
     
-    var model: BookModel
+    var model: BookModelProtocol
     
     lazy var titleLabel: UILabel = UILabel.makeLabel(text: "Word Trainer", fontSize: 40, textAlignment: .left, textColor: UIColor.systemGray)
-    lazy var settingsButton: UIButton = makeSettingsButton()
-    lazy var addOrDeleteButton: UIButton = UIButton.makeButton(color: UIColor.systemTeal.withAlphaComponent(0.4), title: "Add List", target: self, action: #selector(addOrDelete))
-    lazy var editButton: UIButton = UIButton.makeButton(color: UIColor.systemPurple.withAlphaComponent(0.3), title: "Edit", target: self, action: #selector(editOrSave))
-    //lazy var goBackButton: CustomButton = CustomButton.makeCustomButton(dynamicColor: UIColor.systemTeal, title: "Go to Start Menu", fontSize: 25, target: self, action: #selector(goBack))
+    lazy var settingsButton: UIButton = UIButton.makeSystemButton(systemName: "gearshape.2.fill", target: self, action: #selector(settingsButtonTapped), tintColor: .systemGray3)
+    lazy var addOrDeleteButton: ImagedButton = .makeImagedButton(title: "Add", fontSize: 25, image: UIImage.plus, color: .systemTeal, target: self, action: #selector(addOrDeleteButtonTapped))
+    lazy var editButton: ImagedButton = .makeImagedButton(title: "Edit", fontSize: 25, image: UIImage.edit, color: .systemPurple, target: self, action: #selector(editOrSaveButtonTapped))
     lazy var collectionView: UICollectionView = UICollectionView.makeCollectionView(backgroundColor: UIColor.systemBackground)
-    lazy var addButton: UIButton = UIButton.makeBorderedButton(title: "Add List", target: self, action: #selector(add))
-    lazy var addNewListLabel: UILabel = makeBigLabel()
-    
-    lazy var emptyView: UIView = makeEmptyView()
-    lazy var listsView: UIView = makeListsView()
+    lazy var addButton: UIButton = UIButton.makeBorderedButton(title: "Add List", target: self, action: #selector(addButtonTapped))
+    lazy var addNewListLabel: UILabel = UILabel.makeLabel(text: "YOU DON'T HAVE \n ANY LISTS NOW \n\n TAP \"ADD LIST\" \n BUTTON TO ADD \n NEW LIST", fontSize: 30, textAlignment: .center, textColor: UIColor(named: "customControlColor")!)
+    lazy var emptyView: UIView = UIView.makeView()
+    lazy var listsView: UIView = UIView.makeView()
     
     init(model: BookModel) {
         self.model = model
         super.init(nibName: nil, bundle: .main)
+        self.model.viewNeedsReload = { [weak self] in
+            self?.needsReload()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -45,35 +55,115 @@ class BookViewController: UIViewController {
         model.fetchLists()
         setupUI()
     }
+}
+
+extension BookViewController {
+    
+    private func setupUI() {
+        
+        view.backgroundColor = UIColor.secondarySystemBackground
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.backgroundColor = .clear
+        collectionView.register(BookCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        
+        addNewListLabel.numberOfLines = 10
+        
+        view.addSubview(titleLabel)
+        view.addSubview(settingsButton)
+        view.addSubview(emptyView)
+        view.addSubview(listsView)
+        emptyView.addSubview(addButton)
+        emptyView.addSubview(addNewListLabel)
+        listsView.addSubview(addOrDeleteButton)
+        listsView.addSubview(editButton)
+        listsView.addSubview(collectionView)
+        
+        setLayout()
+    }
+    
+    func setLayout() {
+        
+        titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: view.bounds.width * 0.05).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
+        titleLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.057).isActive = true
+        titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
+        
+        settingsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: view.bounds.width * -0.1).isActive = true
+        settingsButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
+        settingsButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        settingsButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        emptyView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10).isActive = true
+        emptyView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40).isActive = true
+        emptyView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        emptyView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        listsView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10).isActive = true
+        listsView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40).isActive = true
+        listsView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        listsView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        addButton.topAnchor.constraint(equalTo: emptyView.topAnchor).isActive = true
+        addButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        addButton.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        addButton.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.8).isActive = true
+        
+        addNewListLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        addNewListLabel.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor).isActive = true
+        addNewListLabel.heightAnchor.constraint(equalTo: emptyView.heightAnchor, multiplier: 0.5).isActive = true
+        addNewListLabel.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 1.0).isActive = true
+        
+        addOrDeleteButton.topAnchor.constraint(equalTo: listsView.topAnchor).isActive = true
+        addOrDeleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
+        addOrDeleteButton.leadingAnchor.constraint(equalTo: listsView.leadingAnchor, constant: view.bounds.width * 0.05).isActive = true
+        addOrDeleteButton.widthAnchor.constraint(equalTo: listsView.widthAnchor, multiplier: 0.40).isActive = true
+        
+        editButton.topAnchor.constraint(equalTo: listsView.topAnchor).isActive = true
+        editButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
+        editButton.trailingAnchor.constraint(equalTo: listsView.trailingAnchor, constant: view.bounds.width * -0.05).isActive = true
+        editButton.widthAnchor.constraint(equalTo: listsView.widthAnchor, multiplier: 0.40).isActive = true
+        
+        collectionView.centerXAnchor.constraint(equalTo: listsView.centerXAnchor).isActive = true
+        collectionView.topAnchor.constraint(equalTo: addOrDeleteButton.bottomAnchor, constant: 70).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: listsView.bottomAnchor).isActive = true
+        collectionView.widthAnchor.constraint(equalTo: listsView.widthAnchor, multiplier: 1.0).isActive = true
+    }
     
 }
 
 extension BookViewController {
     
-    private func enableEditMode() {
-        editModeEnabled = true
-        model.listsForDeleting = []
-        editButton.setTitle("Save", for: .normal)
-        editButton.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.4)
-        addOrDeleteButton.setTitle("Delete", for: .normal)
-        addOrDeleteButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.4)
+    @objc func addOrDeleteButtonTapped() {
+        editModeEnabled ? performDeleting() : presentAddAlert()
     }
     
-    private func disableEditMode() {
-        editModeEnabled = false
-        model.listsForDeleting = []
-        editButton.setTitle("Edit", for: .normal)
-        editButton.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.4)
-        addOrDeleteButton.setTitle("Add List", for: .normal)
-        addOrDeleteButton.backgroundColor = UIColor.systemTeal.withAlphaComponent(0.4)
-    }
-    
-    @objc func addOrDelete() {
-        editModeEnabled ? model.deleteLists() : presentAddAlert()
-    }
-    
-    @objc func add() {
+    @objc func addButtonTapped() {
         presentAddAlert()
+    }
+    
+    @objc func editOrSaveButtonTapped() {
+        editModeEnabled.toggle()
+    }
+    
+    @objc func settingsButtonTapped() {
+        goToSettingsViewController()
+    }
+    
+}
+
+extension BookViewController {
+    
+    func needsReload() {
+        emptyModeEnabled = (model.listsCount() == 0)
+        emptyView.isHidden = !emptyModeEnabled
+        listsView.isHidden = emptyModeEnabled
+        collectionView.reloadData()
+    }
+    
+    private func performDeleting() {
+        model.deleteLists()
+        editModeEnabled = false
     }
     
     func presentAddAlert() {
@@ -89,139 +179,45 @@ extension BookViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    
-    @objc func editOrSave() {
-        editModeEnabled ? disableEditMode() : enableEditMode()
-        collectionView.reloadData()
-    }
-    
-    @objc func goBack() {
-        self.dismiss(animated: true) {}
-    }
-    
-    @objc func settings() {
-        let controller = ModulesBuilder.configurePreferencesController(storageManager: model.storageManager)
+    func goToSettingsViewController() {
+        let controller = ModulesBuilder.configureSettingsViewController(storageManager: model.modelsStorageManager())
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true) {}
     }
     
-    func goToListControllerFor(indexPath: IndexPath) {
-        
+    func goToListControllerWith(list: List) {
+        let controller = ModulesBuilder.configureListViewController(list: list, saveListNameDelegate: self, storageManager: model.modelsStorageManager())
+        controller.modalPresentationStyle = .fullScreen
+        present(controller, animated: true) {}
     }
     
+    func managePreparationForDeletingCellFor(indexPath: IndexPath) {
+        model.managePreparationForDeleting(list: model.listForIndex(indexPath.row))
+        let cell = collectionView.cellForItem(at: indexPath) as! BookCollectionViewCell
+        model.configureItemWithIndex(indexPath.item) { [weak self] list, isPreparedForDeleting in
+            cell.configure(with: list)
+            guard let self = self else {return}
+            cell.contentView.backgroundColor = self.editModeEnabled ? (isPreparedForDeleting ? UIColor.systemRed.withAlphaComponent(0.4) : UIColor.systemGreen.withAlphaComponent(0.4)) : UIColor.systemTeal.withAlphaComponent(0.4)
+        }
+    }
 }
 
-extension BookViewController {
-    
-    func makeBigLabel() -> UILabel {
-        let label = UILabel()
-        label.text = "YOU DON'T HAVE \n ANY LISTS NOW \n\n TAP \"ADD LIST\" \n BUTTON TO ADD \n NEW LIST"
-        label.numberOfLines = 10
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 30)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-    
-    func makeSettingsButton() -> UIButton {
-        let button = UIButton.systemButton(with: UIImage(systemName: "gearshape.2.fill")!, target: self, action: #selector(settings))
-        button.tintColor = .systemGray3
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }
-    
-    func makeEmptyView() -> UIView {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }
-    
-    func makeListsView() -> UIView {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }
-    
-    private func setupUI() {
-        
-        view.backgroundColor = UIColor.systemBackground
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        
-        collectionView.backgroundColor = .clear
-        collectionView.register(BookCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
-        
-        view.addSubview(titleLabel)
-        titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: view.bounds.width * 0.05).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
-        titleLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.057).isActive = true
-        titleLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
-        
-        view.addSubview(settingsButton)
-        settingsButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: view.bounds.width * -0.1).isActive = true
-        settingsButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
-        settingsButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        settingsButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
- 
-        view.addSubview(emptyView)
-        emptyView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10).isActive = true
-        emptyView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40).isActive = true
-        emptyView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        emptyView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        
-        view.addSubview(listsView)
-        listsView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10).isActive = true
-        listsView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40).isActive = true
-        listsView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        listsView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        
-        emptyView.addSubview(addButton)
-        addButton.topAnchor.constraint(equalTo: emptyView.topAnchor).isActive = true
-        addButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        addButton.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
-        addButton.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 0.8).isActive = true
-        
-        emptyView.addSubview(addNewListLabel)
-        addNewListLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
-        addNewListLabel.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor).isActive = true
-        addNewListLabel.heightAnchor.constraint(equalTo: emptyView.heightAnchor, multiplier: 0.5).isActive = true
-        addNewListLabel.widthAnchor.constraint(equalTo: emptyView.widthAnchor, multiplier: 1.0).isActive = true
-        
-        listsView.addSubview(addOrDeleteButton)
-        addOrDeleteButton.topAnchor.constraint(equalTo: listsView.topAnchor).isActive = true
-        addOrDeleteButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
-        addOrDeleteButton.leadingAnchor.constraint(equalTo: listsView.leadingAnchor, constant: view.bounds.width * 0.05).isActive = true
-        addOrDeleteButton.widthAnchor.constraint(equalTo: listsView.widthAnchor, multiplier: 0.40).isActive = true
-        
-        listsView.addSubview(editButton)
-        editButton.topAnchor.constraint(equalTo: listsView.topAnchor).isActive = true
-        editButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.05).isActive = true
-        editButton.trailingAnchor.constraint(equalTo: listsView.trailingAnchor, constant: view.bounds.width * -0.05).isActive = true
-        editButton.widthAnchor.constraint(equalTo: listsView.widthAnchor, multiplier: 0.40).isActive = true
-        
-        listsView.addSubview(collectionView)
-        collectionView.centerXAnchor.constraint(equalTo: listsView.centerXAnchor).isActive = true
-        collectionView.topAnchor.constraint(equalTo: addOrDeleteButton.bottomAnchor, constant: 70).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: listsView.bottomAnchor).isActive = true
-        collectionView.widthAnchor.constraint(equalTo: listsView.widthAnchor, multiplier: 1.0).isActive = true
-    }
-    
-}
 
 extension BookViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return model.lists.count
+        return model.listsCount()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! BookCollectionViewCell
-        cell.contentView.backgroundColor = editModeEnabled ? (model.isPreparedForDeleting(list: model.lists[indexPath.row]) ? UIColor.systemRed.withAlphaComponent(0.4) : UIColor.systemGreen.withAlphaComponent(0.4)) : UIColor.systemTeal.withAlphaComponent(0.4)
-        let list = model.lists[indexPath.item]
-        cell.configure(with: list)
+        model.configureItemWithIndex(indexPath.item) { [weak self] list, isPreparedForDeleting in
+            cell.configure(with: list)
+            guard let self = self else {return}
+            cell.contentView.backgroundColor = self.editModeEnabled ? (isPreparedForDeleting ? UIColor.systemRed.withAlphaComponent(0.4) : UIColor.systemGreen.withAlphaComponent(0.4)) : UIColor.systemTeal.withAlphaComponent(0.4)
+        }
         return cell
     }
-    
 }
 
 extension BookViewController: UICollectionViewDelegateFlowLayout {
@@ -235,33 +231,12 @@ extension BookViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        if !editModeEnabled {
-            collectionView.deselectItem(at: indexPath, animated: true)
-            let controller = ModulesBuilder.configureListViewController(list: model.lists[indexPath.row], saveListNameDelegate: self, storageManager: model.storageManager)
-            controller.modalPresentationStyle = .fullScreen
-            present(controller, animated: true) {}
-        } else {
-            let cell = collectionView.cellForItem(at: indexPath) as! BookCollectionViewCell
-            let isPrepared = model.isPreparedForDeleting(list: model.lists[indexPath.row])
-            isPrepared ? model.restoreList(list: model.lists[indexPath.row]) : model.prepareListForDeleting(list: model.lists[indexPath.row])
-            cell.contentView.backgroundColor = isPrepared ? UIColor.systemGreen.withAlphaComponent(0.4) : UIColor.systemRed.withAlphaComponent(0.4)
-        }
+        collectionView.deselectItem(at: indexPath, animated: true)
+        editModeEnabled ? managePreparationForDeletingCellFor(indexPath: indexPath) :
+            goToListControllerWith(list: model.listForIndex(indexPath.item))
     }
     
 }
-
-
-extension BookViewController: BookViewProtocol {
-    func needsReload() {
-        disableEditMode()
-        emptyModeEnabled = model.lists.isEmpty
-        emptyView.isHidden = !emptyModeEnabled
-        listsView.isHidden = emptyModeEnabled
-        collectionView.reloadData()
-    }
-}
-
 
 extension BookViewController: SaveListNameDelegateProtocol {
     func saveName(_ name: String, for list: List) {

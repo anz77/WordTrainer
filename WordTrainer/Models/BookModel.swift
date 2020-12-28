@@ -7,65 +7,94 @@
 
 import Foundation
 
+protocol BookModelProtocol: class {
+    func modelsStorageManager() -> StorageManagerProtocol?
+    var viewNeedsReload: (()->())? {get set}
+    func configureItemWithIndex(_ index: Int, completion: @escaping (List, Bool)->())
+    func fetchLists()
+    func cleanListsForDeleting()
+    func deleteLists()
+    func addNewList(name: String)
+    func saveName(_ name: String, for list: List)
+    func listForIndex(_ index: Int) -> List
+    func listsCount() -> Int
+    func managePreparationForDeleting(list: List)
+}
+
 class BookModel {
+    var viewNeedsReload: (() -> ())?
+    var storageManager: StorageManagerProtocol?
     
-    weak var view: BookViewProtocol?
+    private var lists: [List] = []
+    private var listsForDeleting: [List] = []
+}
+
+extension BookModel: BookModelProtocol {
     
-    var storageManager: StorageManagerProtocol
-    
-    var lists: [List] = []
-    var listsForDeleting: [List] = []
-        
-    init(storageManager: StorageManagerProtocol) {
-        self.storageManager = storageManager
+    func managePreparationForDeleting(list: List) {
+        listsForDeleting.contains(list) ? listsForDeleting.removeAll { $0 == list } : listsForDeleting.append(list)
     }
     
-    func prepareListForDeleting(list: List) {
-        listsForDeleting.append(list)
+    func configureItemWithIndex(_ index: Int, completion: @escaping (List, Bool)->()) {
+        completion(lists[index], listsForDeleting.contains(lists[index]))
     }
     
-    func isPreparedForDeleting(list: List) -> Bool {
-        listsForDeleting.contains(list)
-    }
-    
-    func restoreList(list: List) {
-        listsForDeleting.removeAll { $0 == list }
-    }
-    
-    func removeList(list: List) {
-        lists.removeAll { $0 == list }
-        do {
-            try storageManager.deleteList(list)
-            try storageManager.deleteCardsInList(list)
-        } catch {}
+    func modelsStorageManager() -> StorageManagerProtocol? {
+        storageManager
     }
     
     func deleteLists() {
-        listsForDeleting.forEach { removeList(list: $0) }
-        view?.needsReload()
-    }    
+        listsForDeleting.forEach { listForDeleting in
+            self.lists.removeAll { list -> Bool in
+                list == listForDeleting
+            }
+            do {
+                try storageManager?.deleteList(listForDeleting)
+                try storageManager?.deleteCardsInList(listForDeleting)
+            } catch {
+                debugPrint(error)
+            }
+        }
+        viewNeedsReload?()
+    }
     
     func addNewList(name: String) {
-        let list = List(name: name, listId: UUID(), isDefault: true)
+        let list = List(name: name, listId: UUID())
         lists.append(list)
         lists.sort { $0 < $1 }
-        view?.needsReload()
+        viewNeedsReload?()
         do {
-            try storageManager.storeNewList(list: list)
-        } catch {}
+            try storageManager?.storeNewList(list: list)
+        } catch {
+            debugPrint(error)
+        }
     }
-
+    
     func fetchLists() {
-        storageManager.fetchAllLists { result in
+        storageManager?.fetchAllLists { result in
             do {
                 let lists = try result.get()
                 self.lists = lists
-                self.view?.needsReload()
+                self.viewNeedsReload?()
             } catch {
                 self.lists = []
-                self.view?.needsReload()
+                self.viewNeedsReload?()
+                debugPrint(error)
             }
         }
+    }
+    
+    func cleanListsForDeleting() {
+        listsForDeleting = []
+        viewNeedsReload?()
+    }
+    
+    func listForIndex(_ index: Int) -> List {
+        lists[index]
+    }
+    
+    func listsCount() -> Int {
+        lists.count
     }
     
     func saveName(_ name: String, for list: List) {
@@ -73,10 +102,15 @@ class BookModel {
             if lists[index].name != list.name {
                 lists[index].name = list.name
                 do {
-                    try storageManager.storeNameForList(name: name, list: list)
-                } catch {}
-                view?.needsReload()
+                    try storageManager?.storeNameForList(name: name, list: list)
+                } catch {
+                    debugPrint(error)
+                }
+                viewNeedsReload?()
             }
         }
     }
 }
+
+
+

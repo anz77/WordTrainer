@@ -7,72 +7,92 @@
 
 import Foundation
 
-protocol SaveListNameDelegateProtocol: class {
-    func saveName(_ name: String, for list: List)
+protocol ListModelProtocol: class {
+    func modelsStorageManager() -> StorageManagerProtocol?
+    var viewNeedsReload: (()->())? {get set}
+    func configureItemWithIndex(_ index: Int, completion: @escaping (Card, Bool)->())
+    func addNewCard(card: Card)
+    func deleteCards()
+    func fetchCards()
+    func saveListName(_ name: String)
+    func editCardIfNeeded(card: Card)
+    func storeCard(_ card: Card)
+    func checkCard(_ card: Card) -> Bool
+    func cleanCardsForDeleting()
+    func cardForIndex(_ index: Int) -> Card
+    func cardsCount() -> Int
+    func currentList() -> List
+    func currentCards() -> [Card]
+    func managePreparationForDeleting(card: Card)
 }
 
 class ListModel {
+    var viewNeedsReload: (()->())?
+    var storageManager: StorageManagerProtocol?
     
-    weak var view: ListViewProtocol?
-        
-    var storageManager: StorageManagerProtocol
-    
-    init(currentList: List, storageManager: StorageManagerProtocol) {
-        self.currentList = currentList
-        self.storageManager = storageManager
+    init(list: List) {
+        self.list = list
     }
     
-    var currentList: List // for fetching of cards
-    var cards: [Card] = []  // for controllers and speach
-    var cardsForDeleting: [Card] = []
+    private var list: List
+    private var cards: [Card] = []
+    private var cardsForDeleting: [Card] = []
+}
+
+extension ListModel: ListModelProtocol {
     
-    func isPreparedForDeleting(card: Card) -> Bool {
-        cardsForDeleting.contains(card)
+    func configureItemWithIndex(_ index: Int, completion: @escaping (Card, Bool)->()) {
+        completion(cards[index], cardsForDeleting.contains(cards[index]))
     }
     
-    func prepareCardForDeleting(card: Card) {
-        cardsForDeleting.append(card)
+    func managePreparationForDeleting(card: Card) {
+        cardsForDeleting.contains(card) ? cardsForDeleting.removeAll { $0 == card } : cardsForDeleting.append(card)
     }
     
-    func restoreCard(card: Card) {
-        cardsForDeleting.removeAll { $0 == card }
+    func modelsStorageManager() -> StorageManagerProtocol? {
+        storageManager
     }
     
     func addNewCard(card: Card) {
         cards.append(card)
         do {
-            try storageManager.storeNewCard(card)
-        } catch {}
-        view?.needsReload()
-    }
-    
-    func removeCard(card: Card) {
-        cards.removeAll { $0 == card }
-        do {
-            try storageManager.deleteCard(card)
-        } catch {}
+            try storageManager?.storeNewCard(card)
+        } catch {
+            debugPrint(error)
+        }
+        viewNeedsReload?()
     }
     
     func deleteCards() {
-        cardsForDeleting.forEach { removeCard(card: $0) }
-        view?.needsReload()
+        cardsForDeleting.forEach { cardForDeleting in
+            cards.removeAll { card in
+                card == cardForDeleting
+            }
+            do {
+                try storageManager?.deleteCard(cardForDeleting)
+            } catch {
+                debugPrint(error)
+            }
+        }
+        viewNeedsReload?()
     }
     
     func fetchCards() {
-        storageManager.fetchCardsForList(list: currentList) { result in
+        storageManager?.fetchCardsForList(list: list) { result in
             do {
                 let cards = try result.get()
                 self.cards = cards
             } catch {
                 self.cards = []
+                debugPrint(error)
             }
-            self.view?.needsReload()
+            self.viewNeedsReload?()
         }
     }
     
     
     func saveListName(_ name: String) {
-        currentList.name = name
+        list.name = name
     }
     
     func editCardIfNeeded(card: Card) {
@@ -80,10 +100,12 @@ class ListModel {
             if cards[index].defaultIndex != card.defaultIndex {
                 cards[index].defaultIndex = card.defaultIndex
                 do {
-                    try storageManager.storeCardDefaultIndex(card.defaultIndex, card: card)
-                } catch {}
+                    try storageManager?.storeCardDefaultIndex(card.defaultIndex, card: card)
+                } catch {
+                    debugPrint(error)
+                }
             }
-            view?.needsReload()
+            viewNeedsReload?()
         }
     }
     
@@ -95,8 +117,24 @@ class ListModel {
         return cards.contains(card)
     }
     
-    deinit {
-        print("list model deinit")
+    func cleanCardsForDeleting() {
+        cardsForDeleting = []
+        viewNeedsReload?()
     }
     
+    func cardForIndex(_ index: Int) -> Card {
+        cards[index]
+    }
+    
+    func cardsCount() -> Int {
+        cards.count
+    }
+    
+    func currentList() -> List {
+        return list
+    }
+    
+    func currentCards() -> [Card] {
+        cards
+    }
 }

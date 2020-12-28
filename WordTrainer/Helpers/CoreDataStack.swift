@@ -10,7 +10,8 @@ import CoreData
 
 class CoreDataStack {
     
-    private let modelName: String
+    //private
+    let modelName: String
     
     lazy var managedContext: NSManagedObjectContext = {
         return self.storeContainer.viewContext
@@ -34,7 +35,9 @@ class CoreDataStack {
 //        return container
 //    }()
     
-    private lazy var storeContainer: NSPersistentContainer = {
+    //private
+
+    lazy var storeContainer: NSPersistentContainer = {
 
         let container = NSPersistentContainer(name: self.modelName)
         let defaultDirectoryURL = NSPersistentContainer.defaultDirectoryURL()

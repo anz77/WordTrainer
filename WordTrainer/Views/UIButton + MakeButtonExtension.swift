@@ -36,5 +36,12 @@ extension UIButton {
         return button
     }
     
+    static func makeSystemButton(systemName: String, target: Any, action: Selector, tintColor: UIColor) -> UIButton {
+        let button = UIButton.systemButton(with: UIImage(systemName: systemName)!, target: target, action: action)
+        button.tintColor = tintColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }
+    
     
 }

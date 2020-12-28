@@ -6,97 +6,119 @@
 //
 
 import Foundation
-import Speech
+
+protocol SpeechModelProtocol: class {
+    // output
+    var viewDisableControl: (() -> ())? {get set}
+    var viewEnableControl: (() -> ())? {get set}
+    var viewSetListen: (() -> ())? {get set}
+    var viewSetReady: (() -> ())? {get set}
+    var viewSetRecognitionOutput: ((String) -> ())? {get set}
+    var viewSetCurrentQuestion: ((String) -> ())? {get set}
+    // input
+    func cancelRecognition()
+    func action()
+    func configure()
+    func next()
+}
 
 class SpeechModel {
     
-    weak var view: SpeechViewProtocol?
+    private var currentIndex: Int = 0
     
-    var recognitionService: SpeechRecognitionService?
-    var storageManager: StorageManagerProtocol
+    // + SpeechModelProtocol output
+    var viewDisableControl: (() -> ())?
+    var viewEnableControl: (() -> ())?
+    var viewSetListen: (() -> ())?
+    var viewSetReady: (() -> ())?
+    var viewSetRecognitionOutput: ((String) -> ())?
+    var viewSetCurrentQuestion: ((String) -> ())?
+    // - SpeechModelProtocol
     
-    var recognizerAuthorized: Bool = false
-    var recognitionAvailable: Bool = false
-    var listen: Bool = false
-    var recognizedString: String = ""
+    var recognitionService: SpeechRecognitionServiceProtocol?
+    var storageManager: StorageManagerProtocol?
     
-    var cards: Array<Card> //= []
-    var currentCard: Card?
+    private var recognizerAuthorized: Bool = false
+    private var recognitionAvailable: Bool = false
+    private var listen: Bool = false
+    private var recognizedString: String = ""
     
-    init(cards: [Card] = [], storageManager: StorageManagerProtocol) {
+    private var cards: Array<Card>
+    //private var currentCard: Card?
+    
+    init(cards: [Card] = []) {
         self.cards = cards
-        self.storageManager = storageManager
     }
     
-    func setRecognitionService() {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            DispatchQueue.main.async {
-                switch authStatus {
-                case .authorized:
-                    print("Authorized")
-                    self.recognizerAuthorized = true
-                    self.cofigureRecognitionService()
-                case .denied:
-                    self.recognizerAuthorized = false
-                case .restricted:
-                    self.recognizerAuthorized = false
-                case .notDetermined:
-                    self.recognizerAuthorized = false
-                @unknown default:
-                    self.recognizerAuthorized = false
-                    fatalError()
-                }
-            }
+    private func cofigureRecognitionService() {
+        recognitionService?.configure()
+        recognitionService?.authorization = { [weak self] (authorized: Bool) -> Void in
+            self?.authorization(authorized: authorized)
         }
-    }
-    
-    func cofigureRecognitionService() {
-        
-        let availability = { [weak self] (available: Bool) -> Void in
+        recognitionService?.availability = { [weak self] (available: Bool) -> Void in
             self?.availability(available: available)
         }
-        
-        let listening = { [weak self] (listen: Bool) -> Void in
+        recognitionService?.listening = { [weak self] (listen: Bool) -> Void in
             self?.listening(listen: listen)
         }
-        
-        let output = { [weak self] (output: Result<String, Error>) -> Void in
+        recognitionService?.output = { [weak self] (output: Result<String, Error>) -> Void in
             self?.output(output: output)
         }
-        recognitionService = SpeechRecognitionService(availability: availability, listening: listening, output: output)
-        self.recognitionService?.configure()
     }
     
-    func availability(available: Bool) {
+    private func authorization(authorized: Bool) {
+        self.recognizerAuthorized = authorized
+    }
+    
+    private func availability(available: Bool) {
         self.recognitionAvailable = available
-        available ? view?.enableControl() : view?.disableControl()
+        available ? viewEnableControl?() : viewDisableControl?()
     }
     
-    func listening(listen: Bool) {
+    private func listening(listen: Bool) {
         self.listen = listen
-        listen ? view?.setListen() : view?.setReady()
+        listen ? viewSetListen?() : viewSetReady?()
     }
     
-    func output(output: Result<String, Error>) {
+    private func output(output: Result<String, Error>) {
         do {
             let string = try output.get()
-            print("........................\(string)")
+            debugPrint("........................\(string)")
             recognizedString = string
-            view?.setRecognitionOutput(string)
+            viewSetRecognitionOutput?(string)
         } catch {
-            print("ERROR :::: \(error)")
+            debugPrint("ERROR :::: \(error)")
         }
+    }
+    
+}
+
+extension SpeechModel {
+    private func stop() {
+        
+    }
+    
+    private func start() {
+        
+    }
+}
+
+
+extension SpeechModel: SpeechModelProtocol {
+    func configure() {
+        cofigureRecognitionService()
+    }
+
+    func cancelRecognition() {
+        recognitionService?.cancel()
     }
     
     func action() {
-        self.listen ? recognitionService?.stopRecording() : recognitionService?.start()
+        self.listen ? recognitionService?.stop() : recognitionService?.start()
     }
     
-    func cancelRecognition() {
-        recognitionService?.cancelRecording()
-    }
-    
-    deinit {
-        print("deinit")
+    func next() {
+        currentIndex += 1
+        //currentCard = cards[currentIndex]
     }
 }

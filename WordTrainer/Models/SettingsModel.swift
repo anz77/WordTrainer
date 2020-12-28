@@ -13,43 +13,44 @@ enum StorageError: Error {
     case emptyArrayError
 }
 
-class PreferensesModel {
+class SettingsModel {
     
-    weak var view: PreferensesViewProtocol?
+    weak var view: SettingsViewProtocol?
     
     lazy var xmlDictManager: XMLDictManager = {
         let manager = XMLDictManager()
         return manager
     }()
     
-    var storageManager: StorageManagerProtocol
+    var storageManager: StorageManagerProtocol?
 
-    init(storageManager: StorageManagerProtocol) {
-        self.storageManager = storageManager
-    }
+    init() {}
     
     var words: [Word]? // for populating persistent storage
 }
 
 
 // MARK: - COREDATA BRIDGE
-extension PreferensesModel {
+extension SettingsModel {
 
-    
     func populatePersistentStorage() {
         do {
-            try storageManager.populateStorage(words: words)
-        } catch {}
+            try storageManager?.populateStorage(words: words)
+        } catch {
+            debugPrint(error)
+        }
     }
     
     func fetchAndClean() {
         do {
-            try storageManager.fetchAllWordsAndCleanDatabase()
-        } catch {}
+            try storageManager?.fetchAllWordsAndCleanDatabase()
+        } catch {
+            debugPrint(error)
+        }
     }
     
     func fetchWord(_ string: String, completion: @escaping (Result<[Word], Error>)->()) {
-        storageManager.fetchWord(string) { result in
+        storageManager?.fetchWord(string) { result in
             completion(result)
         }
     }
@@ -57,7 +58,7 @@ extension PreferensesModel {
 }
 
 // MARK: - XML BRIDGE
-extension PreferensesModel {
+extension SettingsModel {
     
     func getWordsFromXMLDict() {
         xmlDictManager.makeWordsFromXML({ result in

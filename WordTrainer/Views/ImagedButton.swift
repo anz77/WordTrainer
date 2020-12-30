@@ -19,7 +19,6 @@ class ImagedButton: UIButton {
                 super.isHighlighted
             }
             set {
-                
                 backgroundColor = newValue ? dynamicColor?.withAlphaComponent(0.3) : dynamicColor?.withAlphaComponent(0.5)
                 super.isHighlighted = newValue
             }

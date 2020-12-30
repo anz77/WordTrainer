@@ -42,7 +42,6 @@ class CustomButton: UIButton {
 
 extension CustomButton {
     static func makeCustomButton(dynamicColor: UIColor, title: String, fontSize: CGFloat, target: Any, action: Selector) -> CustomButton {
-        //let dynamicColor = dynamicColor
         let button = CustomButton(dynamicColor: dynamicColor)
         button.backgroundColor = dynamicColor
         let color = UIColor(named: "customControlColor")

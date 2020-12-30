@@ -33,6 +33,7 @@
 		B248F570258B506000480B02 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B248F56F258B506000480B02 /* Coordinator.swift */; };
 		B248F575258B526800480B02 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = B248F574258B526800480B02 /* Router.swift */; };
 		B249D6CB2546E7F000EF3424 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B249D6CA2546E7F000EF3424 /* SearchViewController.swift */; };
+		B24ADEE0259A4B490085FEA6 /* PaddingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24ADEDF259A4B490085FEA6 /* PaddingLabel.swift */; };
 		B251B78525509C0600DA0548 /* StringToDataTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B251B78425509C0600DA0548 /* StringToDataTransformer.swift */; };
 		B252B768258BC21900E3EE02 /* CoreDataManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B252B767258BC21900E3EE02 /* CoreDataManagerTest.swift */; };
 		B252B76F258BC3CD00E3EE02 /* TestCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = B252B76E258BC3CD00E3EE02 /* TestCoreDataStack.swift */; };
@@ -113,6 +114,7 @@
 		B248F56F258B506000480B02 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		B248F574258B526800480B02 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		B249D6CA2546E7F000EF3424 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		B24ADEDF259A4B490085FEA6 /* PaddingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingLabel.swift; sourceTree = "<group>"; };
 		B251B78425509C0600DA0548 /* StringToDataTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringToDataTransformer.swift; sourceTree = "<group>"; };
 		B252B767258BC21900E3EE02 /* CoreDataManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManagerTest.swift; sourceTree = "<group>"; };
 		B252B76E258BC3CD00E3EE02 /* TestCoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataStack.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 			isa = PBXGroup;
 			children = (
 				B2F35A0D254461D0000364E3 /* CustomButton.swift */,
+				B24ADEDF259A4B490085FEA6 /* PaddingLabel.swift */,
 				B26B41CE2598CCB3006EC2C0 /* UIImage + SystemImageExtension.swift */,
 				B2BD6C05258FCEC800DD97C5 /* ImagedButton.swift */,
 				B22770CE2566650700EAFABC /* UIButton + MakeButtonExtension.swift */,
@@ -534,6 +537,7 @@
 				B27B62802575129E00798757 /* ListModel.swift in Sources */,
 				B22F7B07254611DB005BF1D0 /* CardViewController.swift in Sources */,
 				B2340210254AE460007417B7 /* Card.swift in Sources */,
+				B24ADEE0259A4B490085FEA6 /* PaddingLabel.swift in Sources */,
 				B2BACFF02542C58700AF003F /* AppDelegate.swift in Sources */,
 				B2CCC3F1257A2A11002FF111 /* UITableView + MakeTableViewExtencion.swift in Sources */,
 				B2BD6C06258FCEC800DD97C5 /* ImagedButton.swift in Sources */,

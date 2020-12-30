@@ -13,6 +13,13 @@ import AVFoundation
 class SpeechSyntesizerService {
     
     func speechUttreance(string: String) {
+        
+        do {
+            let _ = try AVAudioSession.sharedInstance().setCategory(.soloAmbient, options: .duckOthers)
+        } catch {
+            print(error)
+        }
+        
         let utterance = AVSpeechUtterance(string: string)
 
         // Configure the utterance.
@@ -29,6 +36,8 @@ class SpeechSyntesizerService {
 
         // Create a speech synthesizer.
         let synthesizer = AVSpeechSynthesizer()
+    
+        synthesizer.usesApplicationAudioSession = true
 
         // Tell the synthesizer to speak the utterance.
         synthesizer.speak(utterance)

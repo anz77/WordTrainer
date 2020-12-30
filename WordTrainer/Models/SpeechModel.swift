@@ -9,17 +9,19 @@ import Foundation
 
 protocol SpeechModelProtocol: class {
     // output
-    var viewDisableControl: (() -> ())? {get set}
-    var viewEnableControl: (() -> ())? {get set}
-    var viewSetListen: (() -> ())? {get set}
+    var viewEnableControl: ((Bool) -> ())? {get set}
+    var viewSetRecording: (() -> ())? {get set}
     var viewSetReady: (() -> ())? {get set}
-    var viewSetRecognitionOutput: ((String) -> ())? {get set}
-    var viewSetCurrentQuestion: ((String) -> ())? {get set}
+    var viewDisplayRecognitionOutput: ((String) -> ())? {get set}
+    var viewDisplayQuestion: ((String) -> ())? {get set}
+    var viewDisplayAnswer: ((String) -> ())? {get set}
+    var viewDispalayEqual: ((Bool) -> ())? {get set}
     // input
     func cancelRecognition()
     func action()
     func configure()
-    func next()
+    func iterate()
+    func speakWord()
 }
 
 class SpeechModel {
@@ -27,12 +29,13 @@ class SpeechModel {
     private var currentIndex: Int = 0
     
     // + SpeechModelProtocol output
-    var viewDisableControl: (() -> ())?
-    var viewEnableControl: (() -> ())?
-    var viewSetListen: (() -> ())?
+    var viewEnableControl: ((Bool) -> ())?
+    var viewSetRecording: (() -> ())?
     var viewSetReady: (() -> ())?
-    var viewSetRecognitionOutput: ((String) -> ())?
-    var viewSetCurrentQuestion: ((String) -> ())?
+    var viewDisplayRecognitionOutput: ((String) -> ())?
+    var viewDisplayQuestion: ((String) -> ())?
+    var viewDisplayAnswer: ((String) -> ())?
+    var viewDispalayEqual: ((Bool) -> ())?
     // - SpeechModelProtocol
     
     var recognitionService: SpeechRecognitionServiceProtocol?
@@ -40,11 +43,11 @@ class SpeechModel {
     
     private var recognizerAuthorized: Bool = false
     private var recognitionAvailable: Bool = false
-    private var listen: Bool = false
-    private var recognizedString: String = ""
+    private var listeningEnabled: Bool = false
+    private var recording: Bool = false
+    private var recognizedString: String = " "
     
-    private var cards: Array<Card>
-    //private var currentCard: Card?
+    private var cards: Array<Card> = []
     
     init(cards: [Card] = []) {
         self.cards = cards
@@ -58,36 +61,42 @@ class SpeechModel {
         recognitionService?.availability = { [weak self] (available: Bool) -> Void in
             self?.availability(available: available)
         }
-        recognitionService?.listening = { [weak self] (listen: Bool) -> Void in
-            self?.listening(listen: listen)
+        recognitionService?.recording = { [weak self] (recording: Bool) -> Void in
+            self?.recording(recording)
         }
-        recognitionService?.output = { [weak self] (output: Result<String, Error>) -> Void in
+        recognitionService?.output = { [weak self] (output: Result<(String, Bool), Error>) -> Void in
             self?.output(output: output)
         }
     }
     
     private func authorization(authorized: Bool) {
-        self.recognizerAuthorized = authorized
+        recognizerAuthorized = authorized
     }
     
     private func availability(available: Bool) {
-        self.recognitionAvailable = available
-        available ? viewEnableControl?() : viewDisableControl?()
+        recognitionAvailable = available
+        available ? viewEnableControl?(true) : viewEnableControl?(false)
+        let card = cards[currentIndex]
+        available ? viewDisplayQuestion?(card.values[card.defaultIndex]) : viewDisplayQuestion?("")
     }
     
-    private func listening(listen: Bool) {
-        self.listen = listen
-        listen ? viewSetListen?() : viewSetReady?()
+    private func recording(_ recording: Bool) {
+        self.recording = recording
+        recording ? viewSetRecording?() : {}()  //viewSetReady?()
     }
     
-    private func output(output: Result<String, Error>) {
+    private func output(output: Result<(String, Bool), Error>) {
         do {
-            let string = try output.get()
-            debugPrint("........................\(string)")
-            recognizedString = string
-            viewSetRecognitionOutput?(string)
+            let outputTuple = try output.get()
+            //debugPrint("........................\(outputTuple.0)")
+            recognizedString = outputTuple.0
+            viewDisplayRecognitionOutput?(outputTuple.0)
+            if outputTuple.1 {
+                endDictation()
+            }
         } catch {
-            debugPrint("ERROR :::: \(error)")
+            endDictation()
+            //debugPrint("ERROR :::: \(error)")
         }
     }
     
@@ -95,16 +104,25 @@ class SpeechModel {
 
 extension SpeechModel {
     private func stop() {
-        
+        recognitionService?.stop()
     }
     
     private func start() {
-        
+        viewDisplayAnswer?(" ")
+        viewDisplayRecognitionOutput?(" ")
+        recognitionService?.start()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { self.stop() }
     }
 }
 
 
 extension SpeechModel: SpeechModelProtocol {
+    
+    func speakWord() {
+        let syntesizeService = SpeechSyntesizerService()
+        syntesizeService.speechUttreance(string: cards[currentIndex].word)
+    }
+    
     func configure() {
         cofigureRecognitionService()
     }
@@ -114,11 +132,41 @@ extension SpeechModel: SpeechModelProtocol {
     }
     
     func action() {
-        self.listen ? recognitionService?.stop() : recognitionService?.start()
+        listeningEnabled ? speakWord() : (recording ? stop() : start())
     }
     
-    func next() {
-        currentIndex += 1
-        //currentCard = cards[currentIndex]
+    func iterate() {
+        viewSetReady?()
+        viewDisplayRecognitionOutput?(" ")
+        viewDisplayAnswer?(" ")
+        currentIndex < cards.count - 1 ? stepToNextCard() : restartIteration()
+        listeningEnabled = false
     }
+    
+    func stepToNextCard() {
+        currentIndex += 1
+        let card = cards[currentIndex]
+        viewDisplayQuestion?(card.values[card.defaultIndex])
+    }
+    
+    func restartIteration() {
+        currentIndex = 0
+        let card = cards[currentIndex]
+        viewDisplayQuestion?(card.values[card.defaultIndex])
+    }
+    
+    func endDictation() {
+        cards[currentIndex].word.lowercased() == recognizedString.lowercased() ? setSuccess() : setFailure()
+        listeningEnabled = true
+    }
+    
+    func setSuccess() {
+        viewDispalayEqual?(true)
+    }
+    
+    func setFailure() {
+        viewDisplayAnswer?(cards[currentIndex].word + "\n[transcription]")
+        viewDispalayEqual?(false)
+    }
+    
 }

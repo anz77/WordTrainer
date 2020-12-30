@@ -132,7 +132,15 @@ extension UIImage {
         return image
     }
     
-    
+    static var stop: UIImage {
+        let symbol = UIImage(systemName: "stop.circle")
+        let sz = CGSize(width: 200,height: 200)
+        let r = UIGraphicsImageRenderer(size:sz)
+        let image = r.image { _ in
+            symbol?.draw(in:CGRect(origin:.zero, size:sz))
+        }
+        return image
+    }
     
     
     

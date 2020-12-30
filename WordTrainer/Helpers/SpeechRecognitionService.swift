@@ -11,8 +11,8 @@ import Speech
 protocol SpeechRecognitionServiceProtocol: class {
     var authorization: ((Bool)->())? {get set}
     var availability: ((Bool)->())? {get set}
-    var listening: ((Bool)->())? {get set}
-    var output: ((Result<String, Error>)->())? {get set}
+    var recording: ((Bool)->())? {get set}
+    var output: ((Result<(String, Bool), Error>)->())? {get set}
     
     func configure()
     func start()
@@ -24,8 +24,8 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
     
     var authorization: ((Bool)->())?
     var availability: ((Bool)->())?
-    var listening: ((Bool)->())?
-    var output: ((Result<String, Error>)->())?
+    var recording: ((Bool)->())?
+    var output: ((Result<(String, Bool), Error>)->())?
 
     var onDeviceRecognitionAvailable = false
 
@@ -39,7 +39,6 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
             DispatchQueue.main.async {
                 switch authStatus {
                 case .authorized:
-                    print("Authorized")
                     self.authorization?(true)
                     self.setSpeechRecognizer()
                 case .denied:
@@ -71,25 +70,18 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
         guard let speechRecognizer = speechRecognizer else {return}
         availability?(speechRecognizer.isAvailable)
     }
-    
-    
-    
-    func start() {
         
-        listening?(true)
+    func start() {
+        recording?(true)
         startRecording()
-        debugPrint("START")
-
     }
     
     func cancel() {
         recognitionTask?.cancel()
-        debugPrint("CANCELLED")
     }
     
     func stop() {
         recognitionTask?.finish()
-        debugPrint("STOPPED")
     }
     
     private func startRecording() {
@@ -99,13 +91,13 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
         } catch let error {
             output?(.failure(error))
-            listening?(false)
+            recording?(false)
         }
         do {
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch let error {
             output?(.failure(error))
-            listening?(false)
+            recording?(false)
         }
         let inputNode = audioEngine.inputNode
 
@@ -119,19 +111,17 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
 
         recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
             if let result = result {
-                self.output?(.success(result.bestTranscription.formattedString))
+                
+                
                 if result.isFinal {
-                    debugPrint("-----task state = \(String(describing: self.recognitionTask?.state.rawValue))")
-                    debugPrint("FINAL")
+                    self.output?(.success((result.bestTranscription.formattedString, true)))
                     self.stopRecording()
                     inputNode.removeTap(onBus: 0)
                 } else {
-                    debugPrint("-----task state = \(String(describing: self.recognitionTask?.state.rawValue))")
-                    debugPrint("CONTINUOUS")
+                    self.output?(.success((result.bestTranscription.formattedString, false)))
                 }
             }
             if let error = error {
-                debugPrint("-----task state = \(String(describing: self.recognitionTask?.state.rawValue))")
                 self.output?(.failure(error))
                 self.stopRecording()
                 inputNode.removeTap(onBus: 0)
@@ -146,7 +136,7 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
             try audioEngine.start()
         } catch let error {
             output?(.failure(error))
-            listening?(false)
+            recording?(false)
         }
     }
     
@@ -155,8 +145,7 @@ class SpeechRecognitionService: NSObject, SpeechRecognitionServiceProtocol {
         self.recognitionRequest?.endAudio()
         self.recognitionRequest = nil
         self.recognitionTask = nil
-        self.listening?(false)
-        debugPrint("listening stopped")
+        self.recording?(false)
     }
     
 }
